@@ -382,7 +382,7 @@ typedef struct {
     short     first;
     short     count;
     CasinoRGB c;
-    u_char    pad;
+    /* Byte 7 is implicit alignment padding, not an initialized field. */
     short     frames;
 } CasinoFadeArg;
 

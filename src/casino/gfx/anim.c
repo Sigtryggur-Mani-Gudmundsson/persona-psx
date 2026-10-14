@@ -18,35 +18,18 @@ extern void CasinoDrawObj(CasinoObj *o);
 
 void CasinoAddAnim(CasinoAnimArg a);
 
-#ifdef NON_MATCHING
+/* Keep the aggregate initializer: individual stores move the saved ra. */
 void CasinoStartAnim(CasinoObj *o, short frames, short rx, short ry, short rz, long tx, long ty, long tz, long sx,
                      long sy, long sz)
 {
-    volatile CasinoAnimArg a;
+    CasinoAnimArg a = {
+        { { rx, ry, rz, 0 }, { tx, ty, tz, 0 }, { sx, sy, sz, 0 } },
+        o,
+        frames
+    };
 
-    a.d.rot.vx = rx;
-    a.d.rot.vy = ry;
-    a.d.rot.pad = 0;
-    a.d.rot.vz = rz;
-    a.d.trans.vx = tx;
-    a.d.trans.vy = ty;
-    a.d.trans.vz = tz;
-    a.d.trans.pad = 0;
-    a.d.scale.vx = sx;
-    a.d.scale.vy = sy;
-    a.d.scale.vz = sz;
-    a.d.scale.pad = 0;
-    a.o = o;
-    a.frames = frames;
-    CasinoAddAnim(*(CasinoAnimArg *)&a);
+    CasinoAddAnim(a);
 }
-#else
-/* 95.92%: every instruction matches but the image keeps `sw ra` right after
-   the frame adjust, ahead of the parameter loads; sched2 here moves the
-   loads above it (the VramClearRect residual). The volatile request struct
-   is what keeps the stores in field order. */
-INCLUDE_ASM("casino/nonmatchings/gfx/anim", CasinoStartAnim);
-#endif
 
 void CasinoAddAnim(CasinoAnimArg a)
 {
