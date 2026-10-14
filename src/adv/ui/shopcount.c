@@ -212,8 +212,7 @@ void ShopBuyListDraw2(void)
 INCLUDE_ASM("adv/nonmatchings/ui/shopcount", ShopBuyListDraw2);
 #endif
 
-/* 99.7%: one addu has its operands the other way round. */
-#ifdef NON_MATCHING
+/* Keep the byte offset first so GCC preserves the image's addu operands. */
 void ShopMemberNames(void)
 {
     Char  *c;
@@ -222,12 +221,10 @@ void ShopMemberNames(void)
     i = 0;
     c = g_chars;
     for (; i < 5; i++) {
-        TileMapWriteRow(c[i].name, AT(g_tilemap2, i + 2, 3), 0, 8);
+        TileMapWriteRow(((Char *)(i * sizeof(Char) + (u_long)c))->name,
+                        AT(g_tilemap2, i + 2, 3), 0, 8);
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/shopcount", ShopMemberNames);
-#endif
 
 /* How many of the item the bag holds. */
 inline u_char ShopHave(u_short item)
