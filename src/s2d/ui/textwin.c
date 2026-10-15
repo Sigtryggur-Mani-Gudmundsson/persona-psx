@@ -2,7 +2,7 @@
  *   0x8009A2A8 S2dWinInit      0x8009A368 (the draw, asm)
  *   0x8009A658 S2dWinSetArea   0x8009A714 S2dWinCheckFull
  *   0x8009A774 S2dReadChar     0x8009A7B8 S2dCopyName
- *   0x8009A804 S2dCopyChars    0x8009A890 (asm)
+ *   0x8009A804 S2dCopyChars    0x8009A890 (place and upload glyph)
  *   0x8009AB20 S2dWinScroll    0x8009AC04 S2dWinState
  *   0x8009AC18 (the script step, asm)  0x8009B428 S2dWinSetParam
  *
@@ -147,7 +147,41 @@ void S2dCopyChars(u_char *s, u_short *out)
     *out = TEXT_END;
 }
 
-INCLUDE_ASM("s2d/nonmatchings/ui/textwin", func_8009A890);
+typedef struct {
+    u_char  u, v;
+    u_short clut;
+    short   x, y;
+} S2dWinGlyph;
+
+extern int D_800B85BC;
+extern int D_800AA610;
+extern void BtlExpandGlyph(int code, u_int *dst, int font);
+/* This caller passes the coordinate sums without narrowing them. */
+extern void VramQueueLoad();
+
+/* Place a glyph in the window and queue its 4-bit texture upload.
+   The upload buffer wraps after 45 glyphs of 128 bytes each. */
+void func_8009A890(S2dWin *w, u_short ch)
+{
+    S2dWinGlyph *g;
+
+    g = (S2dWinGlyph *)(w->unk1C + w->unk06 * 8);
+    g->x = (w->count % w->cols) * 16;
+    g->y = (w->count / w->cols) * 16;
+    g->u = (short)(w->unk1C4 % 64) * 4 + (short)(w->count % 15) * 16;
+    g->v = w->unk1C6 % 256 + (short)(w->count / 15) * 16;
+    g->clut = GetClut(w->unk1C8, w->unk1CA + w->unk10);
+    BtlExpandGlyph(ch, (u_int *)(D_800B85BC + D_800AA610), 0x801E0000);
+    VramQueueLoad(D_800B85BC + D_800AA610,
+                  w->unk1C4 + (short)(w->count % 15) * 4,
+                  w->unk1C6 + (short)(w->count / 15) * 16, 4, 16);
+    D_800AA610 += 128;
+    if (D_800AA610 >= 0x1680) {
+        D_800AA610 = 0;
+    }
+    w->unk06++;
+    w->count++;
+}
 
 /* One step of the window's scroll: four lines up every frame, and after a
    whole window the text starts again from the top with its glyphs
