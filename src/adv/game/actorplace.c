@@ -88,7 +88,8 @@ void ActorPlace(u_char a)
             }
         }
         g_slot_cur = &g_slots[a];
-        g_slot_cur->tpage_add = g_slot_cur->clut_y = a;
+        g_slot_cur->clut_y = a;
+        g_slot_cur->tpage_add = a;
         SlotSetBrightness(a, A.bright - ((A.bright >> 4) << 3) * g_actor_dim);
     } else {
         A.id = ACTOR_NONE;
