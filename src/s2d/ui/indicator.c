@@ -142,7 +142,92 @@ void S2dIndicatorStep(void)
     }
 }
 
+#ifdef NON_MATCHING
+extern short D_800AA66E;
+extern u_char D_800AA69C[];
+
+void func_8009B758(GsOT *ot, int z)
+{
+    POLY_FT4 poly;
+    MATRIX  matrix;
+    SVECTOR corner[4];
+    long    otz;
+    short   old_x;
+    short   old_y;
+    int     i;
+    int     j;
+    int     x;
+    int     y;
+    u_char  tile;
+
+    if (D_800AA66E == 0) {
+        return;
+    }
+    S2dDrawIndicator();
+    SetPolyFT4(&poly);
+    SetSemiTrans(&poly, 0);
+    SetShadeTex(&poly, 1);
+    poly.clut = GetClut(0x200, 0xF0);
+    poly.tpage = GetTPage(1, 0, 0x200, 0x100);
+    ReadGeomOffset(&old_x, &old_y);
+    SetGeomOffset(-0x60, 0x4C);
+    RotMatrix(&D_800AA674.rot, &matrix);
+    TransMatrix(&matrix, &D_800AA674.trans);
+    ScaleMatrix(&matrix, &D_800AA674.scale);
+    SetRotMatrix(&matrix);
+    SetTransMatrix(&matrix);
+    for (i = 0; i < 0x5A && D_800AA69C[i] != 0xFF; i++) {
+        x = (i % 10) * 16 - 0x90;
+        y = (i / 10) * 16 - 0x28;
+        for (j = 0; j < 4; j++) {
+            corner[j].vx = x + (j & 1) * 16;
+            corner[j].vy = y + (j / 2) * 16;
+            corner[j].vz = 0;
+        }
+        RotTransPers4(&corner[0], &corner[1], &corner[2], &corner[3],
+                      (long *)&poly.x0, (long *)&poly.x1,
+                      (long *)&poly.x2, (long *)&poly.x3, &otz, &otz);
+        tile = D_800AA69C[i];
+        poly.u0 = (tile & 7) << 4;
+        poly.v0 = (tile >> 3) << 4;
+        poly.u1 = poly.u0 + 0x10;
+        poly.v1 = poly.v0;
+        poly.u2 = poly.u0;
+        poly.v2 = poly.v0 + 0x10;
+        poly.u3 = poly.u1;
+        poly.v3 = poly.v2;
+        GsSortPoly(&poly, ot, (u_short)z);
+    }
+    SetPolyFT4(&poly);
+    SetSemiTrans(&poly, 1);
+    SetShadeTex(&poly, 1);
+    poly.clut = GetClut(0x200, 0xF2);
+    poly.tpage = GetTPage(0, 0, 0x280, 0x140);
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 4; j++) {
+            corner[j].vx = i * 32 + (j & 1) * 32 - 0x90;
+            corner[j].vy = (j / 2) * 64 - 0x20;
+            corner[j].vz = 0;
+        }
+        RotTransPers4(&corner[0], &corner[1], &corner[2], &corner[3],
+                      (long *)&poly.x0, (long *)&poly.x1,
+                      (long *)&poly.x2, (long *)&poly.x3, &otz, &otz);
+        tile = D_801F2AC6;
+        poly.u0 = tile << 5;
+        poly.v0 = 0x40;
+        poly.u1 = poly.u0 + 0x1F;
+        poly.v1 = poly.v0;
+        poly.u2 = poly.u0;
+        poly.v2 = 0x78;
+        poly.u3 = poly.u1;
+        poly.v3 = poly.v2;
+        GsSortPoly(&poly, ot, (u_short)z);
+    }
+    SetGeomOffset(old_x, old_y);
+}
+#else
 INCLUDE_ASM("s2d/nonmatchings/ui/indicator", func_8009B758);
+#endif
 
 /* The window's sixteen colours for the option chosen, and its image. */
 void S2dLoadWinColors(void)
