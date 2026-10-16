@@ -32,19 +32,21 @@ void CasinoStartPalAnim(CasinoPalAnim *a)
     a->on = 1;
 }
 
-#ifdef NON_MATCHING
 void CasinoStepPalAnims(void)
 {
     CasinoPalAnim *a;
     short          len;
     int            i;
     int            k;
+    char           frame_step;
 
-    for (i = 0; i < g_casino_palanims.n; i++) {
-        a = g_casino_palanims.a[i];
+    for (i = 0; g_casino_palanims.n > i; i++) {
+        k = i;
+        a = g_casino_palanims.a[k];
         len = g_casino_palanims.len[i];
         if (g_casino_palanims.t[i] % (a->wait + 1) == 0) {
-            CasinoQueueImage(a->pal[a->seq[g_casino_palanims.t[i] / (a->wait + 1)]], &a->r);
+            frame_step = 1;
+            CasinoQueueImage(a->pal[a->seq[g_casino_palanims.t[i] / (a->wait + frame_step)]], &a->r);
         }
         if (g_casino_palanims.t[i]++ == len - 1) {
             a->on = 0;
@@ -58,12 +60,6 @@ void CasinoStepPalAnims(void)
         }
     }
 }
-#else
-/* 90.91%: the image starts the len[] and t[] loop pointers straight from
-   their addresses and derives only a[]'s base from the count's register;
-   here cse1 ties all three to a[]'s base, so loop.c hoists copies. */
-INCLUDE_ASM("casino/nonmatchings/gfx/palanim", CasinoStepPalAnims);
-#endif
 
 void CasinoStartPalCycle(CasinoPalCycle *c)
 {
