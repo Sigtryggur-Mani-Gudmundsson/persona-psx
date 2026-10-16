@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 49500)
-Total output lines: 4040
-
 ## Matching Nudges
 
 The overlays were built with **gcc 2.6.0 at `-O2`**. When a candidate has the
@@ -1869,7 +1866,390 @@ the arm that needs it:
             n = FX_53_LOW_MAX;
         }
         m = n;
-    } …4500 tokens truncated…base afresh for the
+    } else {
+        m = 0;
+    }
+    a->stage[0] = m;
+
+`n = (signed char)++a->stage[0]; if (n >= 0) ...` sign-extends straight into
+`n`, keeps the incremented value alive until the delay slot, and is seven
+words out per clamp. The clamped value going through `m` - with the constant
+written into `n` first - is what gives the single store behind both arms.
+Ternaries, an `else if` chain, block-scoped locals and `signed char` locals
+all landed further away.
+
+- [fxfinish53.c](/src/btlp/fxfinish53.c) - `BtlFxFinish53`, 92.10% to 99.96%
+  over its seven clamps; the rest is the jump table and a table name.
+
+## A case the dispatch tree swallows goes first in the switch
+
+A one-statement case can end up *inside* the compare tree - `bne` to the
+default with its store in a `j`'s delay slot - rather than among the bodies.
+gcc lays bodies out in source order straight after the tree, so that case was
+the first body, and writing it last instead leaves the tree ending in a `beq`
+to a body at the far end and the body before it with a `j` of its own.
+
+- [fxfinish53.c](/src/btlp/fxfinish53.c) - 0xEF's `a->unkD3 = 1`; 92.10% to
+  92.82%.
+
+## `x += x / 8 + GROW`, not `x = x + GROW + x / 8`
+
+The image forms `x + GROW` in the delay slot of the division's sign test and
+adds the quotient to it. Every spelling that puts the constant beside the
+first `x` is folded to `x / 8 + GROW + x`, which needs the quotient first and
+blocks the dispatch branch's delay slot as well.
+
+- [fxmotion.c](/src/btlp/fxmotion.c) - `BtlFxStepOrbitUnused`, 95.33% to exact.
+
+## A min written with the new value first
+
+`a->c.hp = a->c.hp_max < a->c.hp ? a->c.hp_max : a->c.hp` computes the result
+into the maximum's register; the image copies the new value into a register of
+its own and overwrites that. Written the other way round -
+`a->c.hp > a->c.hp_max ? a->c.hp_max : a->c.hp` - the copy and the compare
+come out as the image has them. The same held for a clamp of a local against a
+difference: `amount > a->c.sp_max - a->c.sp ? a->c.sp_max - a->c.sp : amount`,
+which also settled two saved registers elsewhere in the routine.
+
+- [fxfinish5f.c](/src/btlp/fxfinish5f.c) - `BtlFxFinish5F`, 96.33% to 99.94%
+  over its five heal caps and four restoration clamps.
+
+## An address-taken local is assigned with a ternary, not in two arms
+
+A local whose address is passed somewhere lives in the frame, so each arm of an
+`if` stores it on its own and the next use reloads it. The image computing the
+value in a register, storing it once behind both arms and using the register
+afterwards was a ternary assignment.
+
+- [fxfinish5f.c](/src/btlp/fxfinish5f.c) - `amount` for the heal moves and the
+  Persona's restorations; 94.37% to 98.22%.
+
+## A frame eight bytes too small with every slot right
+
+When the image's frame is larger but every stack offset it uses already
+matches, the source had a local nothing uses. An array declared with the
+routine's other locals is laid below the address-taken scalar and moves it;
+declared inside a later block, it is laid out when that block is and sits above
+it, leaving every offset alone.
+
+- [fxfinish5f.c](/src/btlp/fxfinish5f.c) - a `long unused[2]` in the Persona
+  block; the six prologue and epilogue rows went.
+
+## `-1` on a byte is a signed byte
+
+`--a->c.ail_level` on a `u_char` folds the constant to 255 and emits
+`addiu v0, v0, 0xff`; the image's `addiu v0, v0, -1` is the same decrement
+through `*(signed char *)&a->c.ail_level`.
+
+## Two equality tests where the image reloads the field
+
+`(u_int)(o->kind - 0x3F) >= 2` reuses the `o->kind` an earlier index already
+loaded. Written `o->kind != 0x3F && o->kind != 0x40`, fold turns the pair into
+the same range test but through a saved copy of the operand, which is expanded
+as a load of its own - and that is the image's second `lhu` of the field, with
+the first load's register free to take the spell byte.
+
+- [fxfinish37.c](/src/btlp/fxfinish37.c) - `BtlFxFinish37`, 98.70% to 99.27%.
+
+## A byte tested twice through a local read inside the block
+
+Where the image loads a byte once, range-tests the unsigned value and then
+sign-extends the same register in the branch's delay slot for a second test,
+the byte was read into a local between the tests' guard and the tests. Written
+straight off the field, the second test loads it again with `lb`.
+
+    if ((rand() & FX_37_ROLL) < FX_37_MARK_ROLL) {
+        m = a->c.status;
+        if ((u_int)(m - STATUS_PALYZE) >= 2 && (signed char)m != STATUS_SICK) {
+
+- [fxfinish37.c](/src/btlp/fxfinish37.c) - 0xEE's roll; 98.70% to 99.39%.
+
+## A clamp needs a local that does not live across a call
+
+A clamp written into a local that is also a loop counter somewhere else in the
+routine puts the clamp in a saved register; the image's clamp works in `v1`.
+A local of its own, dead at every call, gets the temporary.
+
+- [fxfinish37.c](/src/btlp/fxfinish37.c) - the ailment chance; 97.28% to 97.75%.
+
+## Two `beq` and a `j` to the rest is a switch, not an if chain
+
+Where the image tests a value against two constants with `beq` each and then
+jumps away to the code for everything else, the source was a `switch` with two
+cases and a default. Written as `if ... else if ... else` the first test comes
+out as `bne` over its own arm, and the arms that share a tail stop sharing it.
+The same held three times in one routine: the kind of spell, the reaction the
+affinity answered, and the two flags a kind leaves behind.
+
+- [fxresolve.c](/src/btlp/fxresolve.c) - `BtlFxResolveHit`; 93.18% to 96.44%
+  for the three together.
+
+## A double worked out in two statements
+
+A frame eight bytes too big with a spilled pseudo, and a spell byte loaded
+ahead of the call that converts the caster's squared stat: the source kept the
+square in a `double` local and scaled it in a second statement, with `react`
+cleared after that. As one expression the byte is loaded first and needs a
+saved register of its own across the conversion.
+
+    damage = power * power;
+    amount = damage * ((g_spell_data[g_btl_fx_move].power / 2.0 + 5.0) / 10.0)
+             / (a->unk3C * 6);
+    react = 0;
+
+- [fxresolve.c](/src/btlp/fxresolve.c) - 96.44% to 98.40%, the frame right.
+
+## A last loop that counts in the first loops' local
+
+`BtlFxReopenVoices` counts two walks over the sound slots in `slot` and a third
+over the party. With a counter of its own the third loop's counter and its
+record walker trade s0 and s1; counting in `slot` too is exact.
+
+- [fxresolve.c](/src/btlp/fxresolve.c) - 99.53% to exact.
+
+## A conditional in a table's subscript is folded into both arms
+
+`table[c ? a : b]` is not one lookup. gcc's fold distributes the table's
+constant address over the conditional, `c ? table + a : table + b`, so the
+address has two uses inside the loop and is lifted into a saved register - a
+register too many, and the join's first instruction stolen into the first arm's
+`j` delay slot. The image loads the index in the arms and reads the table once,
+at the join, with a plain `lui at` / `addu at, at, v0`.
+
+Taking the index into a local with an `if`/`else` keeps the single lookup but
+moves the store's address after the join, where it is worked out again. The
+image works the store's offset out *before* the test - `addu v1, s0, zero` in
+its delay slot - which only the conditional inside the statement does. Assigning
+the local inside the subscript gets both:
+
+    g_btl_actors[slot].action = g_btl_tactic_actions[tactic =
+        g_btl_talk_outcome != 0 ? g_btl_actors[slot].mark_kind
+                                : g_btl_actors[slot].c.unk5D & TURN_TACTIC];
+
+A `(u_char)` conversion around the conditional stops the fold as well, but costs
+an `andi 0xff` at the join; `(int)` is stripped and folds like the bare form.
+
+- [nextturn.c](/src/btlp/nextturn.c) - `BtlReadyNextTurn` and `BtlReadyTurnNow`,
+  97.00% as a bare conditional or an `if`/`else`, 99.30% with the conversion,
+  exact with the assignment.
+
+## A loop that runs backwards wants a second stepped value
+
+When the image counts a loop up (`slti a1, a1, 4`) and the build counts it down
+(`bgez a1`) from the far end of the array, gcc reversed it. Writing an offset as
+`i * 8` leaves the counter as the loop's only stepped value, and that loop gets
+reversed; stepping the offset by hand - `x += 8` - kept this one's direction.
+With two stepped values the order they are written in then decides which one
+fills the branch's delay slot, and where the counter's `i = 0` lands in the
+preheader.
+
+    i = 0;
+    x = (digits - 8) * 4;
+    do {
+        o->cells[i].x = x;
+        i++;
+        x += NUMBER_GLYPH;
+    } while (i < NUMBER_CELLS);
+
+- [fieldmarks.c](/src/btlp/fieldmarks.c) - `BtlSpawnHitNumber`: 95.42% with
+  `i * 8`, 97.96% with `x` stepped, 99.82% with `i = 0` ahead of `x`, and exact
+  with `i++` between the store and the step.
+
+## A call's answer used without a mask was an int
+
+`andi a1, v0, 0xff` straight after a call, and `addiu v0, v0, 0xff` for
+`pick - 1`, where the image has neither, mean the caller's prototype returns a
+narrower type than the one the image was built against. `BtlChooseEnemyMove`
+had been declared `u_char`; as `int`, both callers in nextturn.c lose the mask
+and the `-1`, and roundflow.c's definition compiles exactly as before.
+
+- [nextturn.c](/src/btlp/nextturn.c), [roundflow.c](/src/btlp/roundflow.c).
+
+## A prologue that biases a table's address is a pointer walked by hand
+
+"Index a record array rather than walking it" has a reverse. Where the image
+sets up `addiu s4, t3, 0x64` in the prologue, reads every field at a negative
+offset from it, and keeps the unbiased address spilled to the stack beside it,
+the source walked the record with `a++` from before the loop. Taken afresh each
+turn - `a = &g_btl_actors[i]` - gcc works it out again from the byte offset
+instead of keeping a register of its own. The same goes for a row of text
+records stepped five at a time.
+
+    i = 0;
+    row = g_btl_marker_rows[0];
+    a = g_btl_actors;
+    for (; i < BTL_PARTY; i++, a++, row += MARKER_ROWS) {
+
+The order of the three assignments is the image's preheader order.
+
+- [markerbuild.c](/src/btlp/markerbuild.c) - `BtlBuildMarkers`, 87.58% taken
+  each turn, 90.08% walked, and 96.26% once the assignments were in the
+  preheader's order.
+
+## A store after an equality test is indexed by the older counter
+
+After `if (i != j) { ... } else { mark[j].u = SELF; }`, cse knows `i == j` in
+the else arm and rewrites the store as `mark[i].u` - `i` is the older
+register, so it is the one kept. That address is now a value of the *outer*
+loop: gcc strength-reduces `i * 8` into a stack slot and a saved register of its
+own, and uses it to eliminate `j` from the inner loop as well. The `.cse` dump
+shows the substitution directly.
+
+The image kept `j` (`beq s6, a0`) and wrote the self cell through the same
+walker as the others (`sb zero, 0(a1)`). Walking the cell pointer leaves no
+index for cse to substitute:
+
+    for (j = 0; j < BTL_PARTY; j++, mark++) {
+        ...
+        if (i != j) { mark->u = CELL_OTHER; } else { mark->u = CELL_SELF; }
+
+- [markerbuild.c](/src/btlp/markerbuild.c) - `BtlBuildMarkers`, 90.08% to
+  94.70%, the frame eight bytes smaller and a saved register gone.
+
+## A signed compare against an end address counts beside an eliminated walk
+
+A loop that exits on `slt a0, a1` against an end pointer, with a count
+incremented in the branch's delay slot and used after the loop, was not a
+pointer walk - a pointer compare is `sltu` - and not the counter itself, which
+gcc cannot eliminate while it is still wanted afterwards. It is a second
+counter beside the one the loop tests:
+
+    n = 0;
+    for (j = 0; j < NAME_CELLS; j++) {
+        if (g_btl_actors[i].c.name[j] == GLYPH_END) break;
+        n++;
+    }
+
+- [markerbuild.c](/src/btlp/markerbuild.c) - the name's glyph count, 96.26% to
+  96.69%; a hand-walked pointer came out at 93.46%.
+
+## A constant reload puts back at each use is a local of its own
+
+`ori t3, zero, 0x22` at one use and `ori t2, zero, 0x22` at the next, in the
+reload registers rather than `v0`/`v1`, is a pseudo that never got a hard
+register and is rematerialised from its constant every time it is needed. gcc's
+loop pass only makes one of those for a literal when lifetime times savings
+clears the loop's instruction count - the `.loop` dump prints each verdict as
+`savings N ... not desirable`. A local assigned once before the loop always
+lives long enough:
+
+    low = GAUGE_LOW;
+    ...
+        row[ROW_NAME].clut = low;
+
+With the literal, the two colour stores in the dying arm share one `li` and
+jump2 folds them into the escape arm's identical tail; through the local they
+are reloaded separately and the arms stay apart, as the image has them. Every
+other reload register in the routine swapped back into place with it.
+
+- [markerbuild.c](/src/btlp/markerbuild.c) - `BtlBuildMarkers`, 96.69% to
+  98.07%.
+
+## Which store comes first decides where its constant is loaded
+
+With the stores already in the image's order, a constant loaded a few
+instructions early and into its own register is the scheduler reading the
+source order of the *first* store that uses it. `row[ROW_NAME].clut` written
+straight after `row[ROW_NAME].x` put `ori v1, zero, 0x20` ahead of the whole
+run, where the image has it; written after the count it is loaded beside its
+stores into `v0`. The same held for the dying label's first colour, and for
+which of five blank cells is cleared first.
+
+- [markerbuild.c](/src/btlp/markerbuild.c) - `BtlBuildMarkers`, 98.07% to
+  exact over three such placements.
+
+## An ordering table's address written into `addPrim`, not taken first
+
+`addPrim(ot, p)` is `setaddr(p, getaddr(ot)), setaddr(ot, p)`. With `ot` a
+local assigned the statement before, the whole address is worked out ahead of
+the primitive's tag; written straight into the call, the tag is loaded between
+the pool read and the address's last add, which is the image's
+`lw v1, pool / lw a0, 0(a1) / addu v0, v0, v1 / ori v1, 0xD6C0`.
+
+    addPrim((u_long *)(g_btl_prim_pool + g_btl_frame * BTL_FRAME_STRIDE + BTL_OT),
+            g_btl_lineg2_next);
+
+- [objlists.c](/src/btlp/objlists.c) - `BtlDrawObjLines`, 95.80% to 99.19% for
+  the two loops together.
+
+## A table declared `const` lets its loads move ahead of stores
+
+gcc marks a `const` global's memory as unchanging, and the scheduler then
+treats a load from it as independent of any store. Where the image loads a
+table only after a run of stores through a record - six grey colours, then
+the three bytes of the tint the call takes - the table was plain data. Declared
+`const`, the three loads were scheduled in front of the stores and the last
+store landed in the call's delay slot; declared `u_char`, which is also what
+its place in `.data` says it is, the order is the image's.
+
+- [hurtmotion.c](/src/btlp/hurtmotion.c) - `BtlActorMotion07`, 97.30% to exact
+  on `g_btl_tint_pick_r`, `_g` and `_b` losing their `const` in
+  [clut.h](/include/persona/btlp/clut.h).
+
+In the same routine the marker record is the variable the hit number was held
+in: two phases of a switch, the number in one and the marker in the other,
+and one saved register for both. Given a variable of its own the marker is
+never live across a call, so it lands in `t1` instead (97.22% to 97.30%, every
+register row gone). The talk-motion script is reached through a row pointer,
+`row = &g_btl_talk_motion[kind * MEMBER_SCRIPT_MODEL]` and then
+`row[pick * MEMBER_SCRIPT_PICK]`, the way the stance rows already were (94.60%
+to 96.01%).
+
+## A scratch slot through a pointer, and a block boundary behind it
+
+`BtlDrawObjLines` passes its two scratch slots to `RotTransPers` twice a turn.
+The image copies both slots' addresses into fresh saved registers ahead of the
+loop; ours copied one, and the quad's address and the flag's slot traded
+registers for it. The permuter's answer, which no hand ordering reached, is the
+interpolation slot taken into a pointer inside the loop with an empty block
+straight after:
+
+    p = &scratch[1];
+    do {
+    } while (0);
+    RotTransPers(&g_btl_obj_quad[0], (long *)&next->x0, p, &scratch[0]);
+
+The pointer without the block leaves the routine where it was (99.62%); the
+block is what makes the assignment a set of its own for the loop pass.
+
+- [objlists.c](/src/btlp/objlists.c) - 99.62% to exact, after the clear split
+  on the counter above took it from 99.26%.
+
+The same routine's frame came right in two steps of section 11's kind: a
+`long scratch[6]` where two of the longs are read, and in `BtlObjPlaceUnused`
+an unused `long unused[2]` declared *below* the transform's flag, which moves
+the flag up to the image's slot where a larger scratch would not.
+
+## A field tested, shifted and masked from one load is an unsigned local
+
+Setting a bit in a bitmap by species, the image loads the halfword once and
+uses that one register for the range test (`sltiu`), the word index (`srl`) and
+the bit number (`andi`). Three plain `o->kind` reads get a second `lhu` for the
+bit number. A local that holds it is right only in the right width:
+
+    kind = o->kind;
+    if (kind < KIND_PERSONAS) {
+        g_btl_persona_won[kind >> 5] |= 1 << (kind & 0x1F);
+    }
+
+- `u_int kind` is exact.
+- `int kind` turns the test and the shift signed (`slti`, `sra`).
+- `u_short kind` adds an `andi 0xffff` ahead of the test.
+
+The opposite of section "A field the image reads twice, and gcc reads once":
+here it is the plain spelling that pays the extra load.
+
+- [deathmotion.c](/src/btlp/deathmotion.c) - 98.28% with an `int`, exact with
+  a `u_int`, once the carried fighter's resume was also written in the image's
+  order (motion, phase, then the attribute bit) - that alone was 98.05% to
+  99.63%.
+
+## Cell tables are two-dimensional
+
+A board's number, name and label cells, filled a row per entry inside a loop,
+are `u_char cells[][N]` in the source. The image reaches each row through the
+symbol (`lui at, %hi(cells); addu at, at, s0; sb ..., %lo(cells)(at)`) with a
+strength-reduced `i * N` in a saved register, and loads the base afresh for the
 row it hands a call. Written flat, a blank as `cells[i * N] = 0xFF` loads the
 symbol into a register of its own. The `.loop` dump then pairs it with the
 call's identical load (`move-insn savings 2 ... moved`), and the base is lifted
