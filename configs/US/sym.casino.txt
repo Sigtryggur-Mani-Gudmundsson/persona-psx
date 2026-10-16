@@ -1,2 +1,0 @@
-// Revelations: Persona (US) - casino. Nothing named yet.
-g_overlay_base       = 0x80065A84;

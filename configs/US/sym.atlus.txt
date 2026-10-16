@@ -1,2 +1,0 @@
-// Revelations: Persona (US) - atlus. Nothing named yet.
-D_80080000           = 0x80080000; // type:u32 size:0xE3C
