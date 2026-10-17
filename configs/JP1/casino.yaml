@@ -247,7 +247,7 @@ segments:
       - [0x2CA34, c, game/cursortween]
       - [0x2CAFC, c, game/cursorreset]
       - [0x2CB4C, c, game/changeapply]
-      - [0x2CBB8, asm, casino_after_changeapply]
+      - [0x2CBB8, c, game/balancedigits]
       - [0x2CDB4, c, game/digittex]
       - [0x2CE44, asm, casino_after_digittex]
       - [0x2D1A4, c, game/digitanim]
