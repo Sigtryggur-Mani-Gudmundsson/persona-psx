@@ -243,7 +243,7 @@ segments:
       - [0x222C4, c, common/game/roomrotate]
       - [0x22468, c, common/gfx/compass]
       - [0x22550, c, common/gfx/mapmarker]
-      - [0x225F8, asm, s2d_2_s25]
+      - [0x225F8, c, common/ui/mapname]
       - [0x226F4, c, common/ui/mapmarkers]
       - [0x22914, c, ui/mapstep]
       - [0x22C4C, c, common/ui/mapview]
