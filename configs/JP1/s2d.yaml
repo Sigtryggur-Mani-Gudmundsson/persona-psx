@@ -312,6 +312,7 @@ segments:
       - [0x37FCC, asm, s2d_after_mapscale]
       # The overlay's own workspace: what the disc carries a value for,
       # and behind it the run of zeroes the loader never has to write.
+      - [0x382DC, c, game/sceneimage]
       - [0x383B0, data, s2d_data]
       - [0x4C0FC, bss, s2d_bss]
 
