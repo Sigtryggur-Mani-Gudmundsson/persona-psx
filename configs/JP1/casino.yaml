@@ -274,6 +274,8 @@ segments:
       - [0x2E994, c, game/doubletofixed]
       - [0x2EA4C, c, game/modelxformdraw]
       - [0x2EB74, asm, casino_after_modelxformdraw]
+      - [0x2F730, c, game/rewardaudio]
+      - [0x2F7D4, asm, casino_after_rewardaudio]
       - [0x2F86C, data, casino_data]
       - [0x43F9C, bss, casino_bss]
 
