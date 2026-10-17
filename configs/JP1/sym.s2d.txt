@@ -1289,6 +1289,7 @@ g_s2d_heading            = 0x800A4CF6; // size:0x2
 g_cam_turn_speed         = 0x800A4CF8; // size:0x2
 g_cam_turn_angle         = 0x800A4CFA; // size:0x2
 D_800A4CFC               = 0x800A4CFC; // type:u32 size:0x38C
+g_s2d_selected_event_flag = 0x800A4D04; // type:s16 size:0x2
 g_idle_kind              = 0x800A4FF4; // size:0x4
 g_idle_frames            = 0x800A4FF8; // size:0x4
 g_idle_phase             = 0x800A4FFC; // size:0x4
