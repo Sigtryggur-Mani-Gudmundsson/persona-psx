@@ -272,6 +272,8 @@ segments:
       - [0x2F45C, asm, s2d_2_s27_c1]
       - [0x31DD4, c, game/statereset]
       - [0x31DF8, asm, s2d_2_s27_c2]
+      - [0x32A44, c, game/copywords]
+      - [0x32A6C, asm, s2d_after_copywords]
       # The disc loads: the map's sound, scene data and models, the prefetches.
       - [0x32FD0, c, gfx/vram]
       - [0x33168, asm, s2d_2_s27a]
@@ -282,11 +284,17 @@ segments:
       - [0x344C8, c, gfx/vramqueue]
       - [0x34710, c, gfx/glyph]
       - [0x3485C, asm, s2d_2_s27a2]
+      - [0x35590, c, game/mapspacing]
+      - [0x355AC, asm, s2d_after_mapspacing]
+      - [0x35630, c, game/mapentry]
+      - [0x35660, asm, s2d_after_mapentry]
       - [0x359C0, c, game/sceneload]
       - [0x35F08, c, ui/textwin]
       - [0x370F0, c, ui/indicator]
       - [0x37884, c, common/game/eventflag]
       - [0x378AC, asm, s2d_2_s28]
+      - [0x37F9C, c, game/mapscale]
+      - [0x37FCC, asm, s2d_after_mapscale]
       # The overlay's own workspace: what the disc carries a value for,
       # and behind it the run of zeroes the loader never has to write.
       - [0x383B0, data, s2d_data]
