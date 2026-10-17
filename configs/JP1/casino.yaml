@@ -231,6 +231,7 @@ segments:
       - [0x2D25C, asm, casino_after_entrytest]
       # The overlay's own workspace: what the disc carries a value for,
       # and behind it the run of zeroes the loader never has to write.
+      - [0x2D450, c, game/bounceintegrate]
       - [0x2D56C, c, game/doublebounce]
       - [0x2D5FC, asm, casino_after_doublebounce]
       - [0x2D760, c, game/stepdouble]
