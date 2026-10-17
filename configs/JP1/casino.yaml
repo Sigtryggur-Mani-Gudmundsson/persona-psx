@@ -111,6 +111,8 @@ segments:
       - [0x15738, asm, casino_after_bjdispatch]
       - [0x15EDC, c, game/cardjudge]
       - [0x15FFC, asm, casino_after_cardjudge]
+      - [0x163DC, c, game/betcoinreturn]
+      - [0x16514, asm, casino_after_betcoinreturn]
       - [0x16D8C, c, game/cardexit]
       - [0x16E68, c, game/cardwait]
       - [0x16EE8, asm, casino_after_cardwait]
