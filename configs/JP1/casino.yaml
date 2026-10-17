@@ -170,7 +170,7 @@ segments:
       - [0x1E204, c, game/uvstrip]
       - [0x1E2B8, asm, casino_after_uvstrip]
       - [0x1E3B0, c, game/cardthreshold]
-      - [0x1E3F4, asm, casino_after_cardthreshold]
+      - [0x1E3F4, c, game/cardcolor]
       - [0x1E44C, c, game/cardcompare]
       - [0x1E53C, c, game/reelstate]
       - [0x1E654, asm, casino_after_reelstate]
