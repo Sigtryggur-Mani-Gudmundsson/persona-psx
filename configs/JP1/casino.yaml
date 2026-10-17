@@ -206,6 +206,8 @@ segments:
       - [0x277E4, asm, casino_after_gridtextureflip]
       - [0x28130, c, game/lamptimeline]
       - [0x2823C, asm, casino_after_lamptimeline]
+      - [0x28344, c, game/glyphclass]
+      - [0x28384, c, game/glyphcolumn]
       - [0x2847C, c, game/glyphrow]
       - [0x28530, c, game/shufflegrid]
       - [0x2863C, asm, casino_after_shufflegrid]
