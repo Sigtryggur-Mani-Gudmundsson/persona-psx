@@ -1413,24 +1413,18 @@ void PersonaSlotsDrawFor(short slot)
     }
 }
 
-#ifdef NON_MATCHING
 /* Whether a character may take a Persona: it must answer them at all, and
    they must be at its level. */
-/* 96.14%: the image keeps v0 free and puts the Persona offset in a1;
-   this build uses v0 and a0 for the same values. */
 short CharCanUsePersona(short chr, short persona)
 {
     Char *c;
 
     c = &g_chars[chr];
     if ((g_persona_defs[persona].bond >> ((c->key - 1) * 2)) & 3) {
-        return g_persona_defs[persona].level <= c->unk56;
+        if (g_persona_defs[persona].level <= c->unk56) return 1;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/facilitymisc", CharCanUsePersona);
-#endif
 
 void ShopStep2(void)
 {

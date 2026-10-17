@@ -141,29 +141,20 @@ int FieldStepTick(void)
 
 /* Whether the tile the party stands on refuses to be left towards
    walk_dir. */
-/* 97.6%: the layout is right with the result in a variable, but the
-   variable takes a0 and is moved to v0 at the end, where the image computes
-   straight into v0. */
-#ifdef NON_MATCHING
 int FieldTileOneWay(void)
 {
     int flags;
-    int r;
 
     if (g_noclip) {
-        r = 0;
+        return 0;
     } else {
         flags = g_tile_defs[g_floor_grid[g_dng->pos[POS_Y]][g_dng->pos[POS_X]]].flags;
-        r = 0;
         if ((flags & TILE_KIND) == TILE_KIND_ONEWAY) {
-            r = (flags >> (g_dng->walk_dir + 5)) & 1;
+            if ((flags >> (g_dng->walk_dir + 5)) & 1) return 1;
         }
+        return 0;
     }
-    return r;
 }
-#else
-INCLUDE_ASM("dng/nonmatchings/field/fieldstairs", FieldTileOneWay);
-#endif
 
 /* Whether the party's tile is one it cannot stand on. */
 int FieldTileSolid(void)
