@@ -1,7 +1,7 @@
 /* Persona 1 (JP) - convert a card's rank to its blackjack value. */
 #include <decomp/types.h>
 
-u_char func_800823A0(u_char card)
+int func_800823A0(u_char card)
 {
     u_char rank = card % 13;
 
@@ -16,7 +16,7 @@ u_char func_800823A0(u_char card)
     case 7:
     case 8:
     case 9:
-        return rank + 1;
+        return (u_char)(rank + 1);
     case 10:
     case 11:
     case 12:
