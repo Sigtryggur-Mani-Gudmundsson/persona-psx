@@ -127,6 +127,7 @@ segments:
       - [0x17DB8, asm, casino_b_after_naturalstep]
       - [0x17F18, c, game/carddispatch]
       - [0x17FB8, asm, casino_after_carddispatch]
+      - [0x1902C, c, game/dealerdispatch]
       - [0x190DC, c, game/dealercheck]
       - [0x19118, c, game/dealeranim]
       - [0x191B4, asm, casino_after_dealeranim]
