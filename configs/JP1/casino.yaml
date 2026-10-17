@@ -180,6 +180,7 @@ segments:
       - [0x229A0, asm, casino_after_timingselect]
       - [0x22D14, c, game/reelstep]
       - [0x22E1C, asm, casino_after_reelstep]
+      - [0x24224, c, game/reelchoiceexit]
       - [0x24350, c, game/statedispatch2]
       - [0x24478, asm, casino_after_statedispatch2]
       - [0x245B4, c, game/reelreset]
