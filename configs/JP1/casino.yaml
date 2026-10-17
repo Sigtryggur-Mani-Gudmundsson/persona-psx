@@ -96,6 +96,10 @@ segments:
       - [0x15650, asm, casino_b]
       - [0x1AF10, c, dispatch]
       - [0x1AFC8, asm, casino_1]
+      - [0x1B058, c, game/animsteps]
+      - [0x1B1D8, asm, casino_after_animsteps]
+      - [0x1DC94, c, game/cardhelpers]
+      - [0x1DCBC, asm, casino_after_cardhelpers]
       # The overlay's own workspace: what the disc carries a value for,
       # and behind it the run of zeroes the loader never has to write.
       - [0x2F86C, data, casino_data]
