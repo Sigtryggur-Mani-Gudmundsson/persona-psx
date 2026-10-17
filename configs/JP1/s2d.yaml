@@ -315,6 +315,8 @@ segments:
       - [0x37884, c, common/game/eventflag]
       - [0x378AC, c, game/settleframes]
       - [0x3791C, asm, s2d_after_settleframes]
+      - [0x37BFC, c, game/mapnodes]
+      - [0x37CDC, asm, s2d_after_mapnodes]
       - [0x37F68, c, game/mapscale]
       - [0x37FCC, asm, s2d_after_mapscale]
       # The overlay's own workspace: what the disc carries a value for,
