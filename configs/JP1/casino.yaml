@@ -139,7 +139,7 @@ segments:
       - [0x1A1D0, c, game/betlamps]
       - [0x1A274, asm, casino_b_after_betlamps]
       - [0x1AAD8, c, game/cardspread]
-      - [0x1AB88, asm, casino_after_cardspread]
+      - [0x1AB88, c, game/menux]
       - [0x1AC6C, c, game/cardpositions]
       - [0x1ADC0, c, game/animdispatch]
       - [0x1AE30, c, game/animsequence]
