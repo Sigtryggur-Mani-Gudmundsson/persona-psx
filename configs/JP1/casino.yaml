@@ -165,7 +165,7 @@ segments:
       - [0x1DBE0, c, game/threecard]
       - [0x1DC94, c, game/cardhelpers]
       - [0x1DCBC, c, game/handtotals]
-      - [0x1DE18, asm, casino_after_cardhelpers]
+      - [0x1DE18, c, game/addcardtotal]
       - [0x1DF6C, c, game/cardpairclass]
       - [0x1DFA0, c, game/pairaces]
       - [0x1E000, c, game/cardvalue]
