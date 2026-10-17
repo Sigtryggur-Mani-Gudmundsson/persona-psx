@@ -257,6 +257,7 @@ segments:
       - [0x253E4, c, common/ui/persontype]
       - [0x25464, c, game/s2dmain]
       - [0x25BBC, asm, s2d_2_s27_a]
+      - [0x26870, c, game/drawqueuedframe]
       - [0x26A60, c, game/relativeposition]
       - [0x26B08, asm, s2d_after_relativeposition]
       - [0x26CA8, c, game/s2drun]
