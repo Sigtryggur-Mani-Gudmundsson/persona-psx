@@ -273,6 +273,7 @@ segments:
       - [0x2954C, c, gfx/modelmap]
       - [0x295E8, c, game/mapcoordbuild]
       - [0x296E0, asm, s2d_after_mapcoordbuild]
+      - [0x29DB8, c, game/padselect]
       - [0x29E20, c, game/padrepeat]
       - [0x29EE8, c, game/scenecoords]
       - [0x2A514, c, game/field]
