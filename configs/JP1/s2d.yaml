@@ -270,6 +270,12 @@ segments:
       - [0x2F0B8, c, game/mappage]
       - [0x2F2E0, c, ui/msgopen]
       - [0x2F45C, asm, s2d_2_s27_c1]
+      - [0x30240, c, game/blinkstep]
+      - [0x302C0, asm, s2d_after_blinkstep]
+      - [0x30694, c, game/packedmap]
+      - [0x30768, asm, s2d_after_packedmap]
+      - [0x30BFC, c, game/mapfind]
+      - [0x30C58, asm, s2d_after_mapfind]
       - [0x31DD4, c, game/statereset]
       - [0x31DF8, asm, s2d_2_s27_c2]
       - [0x32A44, c, game/copywords]
@@ -293,7 +299,7 @@ segments:
       - [0x370F0, c, ui/indicator]
       - [0x37884, c, common/game/eventflag]
       - [0x378AC, asm, s2d_2_s28]
-      - [0x37F9C, c, game/mapscale]
+      - [0x37F68, c, game/mapscale]
       - [0x37FCC, asm, s2d_after_mapscale]
       # The overlay's own workspace: what the disc carries a value for,
       # and behind it the run of zeroes the loader never has to write.
