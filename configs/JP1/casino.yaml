@@ -236,6 +236,8 @@ segments:
       - [0x29304, c, game/waitstep]
       - [0x29344, c, game/noop_8008D6E4]
       - [0x2934C, asm, casino_after_noop3]
+      - [0x298B4, c, game/rewardwait]
+      - [0x299A4, asm, casino_after_rewardwait]
       - [0x2A704, c, game/handevaluate]
       - [0x2A7FC, c, game/gridreopen]
       - [0x2AA60, asm, casino_after_gridreopen]

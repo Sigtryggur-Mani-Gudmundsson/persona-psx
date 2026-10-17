@@ -629,6 +629,7 @@ D_80099A98               = 0x80099A98; // size:0x78
 D_80099B10               = 0x80099B10; // size:0x180
 D_80099C90               = 0x80099C90; // size:0x18
 D_80099CA8               = 0x80099CA8; // size:0x18
+g_casino_reward_palette_on = 0x80099CB8; // type:u8 size:0x1
 D_80099CC0               = 0x80099CC0; // size:0x18
 D_80099CD8               = 0x80099CD8; // size:0x18
 D_80099CF0               = 0x80099CF0; // size:0x18
