@@ -92,6 +92,7 @@ segments:
       - [0xB54, rodata, s2d_rodata3c0b]
       - [0xBC8, .rodata, game/field]
       - [0xBDC, rodata, s2d_rodata3c0c]
+      - [0xCB8, .rodata, game/mapfrontdraw]
       - [0xCD4, .rodata, audio/soundsetup]
       - [0xCDC, rodata, s2d_rodata3c1]
       - [0xD0C, .rodata, game/sceneload]
@@ -287,6 +288,7 @@ segments:
       - [0x31E84, asm, s2d_after_eventrecord]
       - [0x32A44, c, game/copywords]
       - [0x32A6C, asm, s2d_after_copywords]
+      - [0x32E34, c, game/mapfrontdraw]
       - [0x32EE8, c, game/playtime]
       # The disc loads: the map's sound, scene data and models, the prefetches.
       - [0x32FD0, c, gfx/vram]
