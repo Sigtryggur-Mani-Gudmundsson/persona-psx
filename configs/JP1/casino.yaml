@@ -161,6 +161,7 @@ segments:
       - [0x1D238, c, game/bjinput]
       - [0x1D344, c, game/seqrestart2]
       - [0x1D3AC, asm, casino_after_seqrestart2]
+      - [0x1D8C0, c, game/shoedraw]
       - [0x1DA20, c, game/cardpair]
       - [0x1DBE0, c, game/threecard]
       - [0x1DC94, c, game/cardhelpers]
