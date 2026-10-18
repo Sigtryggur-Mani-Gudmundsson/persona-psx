@@ -242,6 +242,7 @@ segments:
       - [0x2934C, asm, casino_after_noop3]
       - [0x298B4, c, game/rewardwait]
       - [0x299A4, asm, casino_after_rewardwait]
+      - [0x2A1F0, c, game/rewardslide]
       - [0x2A350, c, game/payoutfinish]
       - [0x2A468, asm, casino_after_payoutfinish]
       - [0x2A704, c, game/handevaluate]
