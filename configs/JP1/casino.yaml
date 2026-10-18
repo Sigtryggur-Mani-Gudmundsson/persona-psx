@@ -253,6 +253,8 @@ segments:
       - [0x2BB7C, asm, casino_after_shiftpairs]
       - [0x2BDFC, c, game/betpaletteflags]
       - [0x2BEA8, asm, casino_after_betpaletteflags]
+      - [0x2BF90, c, game/maxbet]
+      - [0x2C0A8, asm, casino_after_maxbet]
       - [0x2C15C, c, game/betcollect]
       - [0x2C22C, c, game/idlecounter]
       - [0x2C330, c, game/tabletween]
