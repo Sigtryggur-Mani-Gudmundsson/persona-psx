@@ -310,7 +310,8 @@ segments:
       - [0x32EE8, c, game/playtime]
       # The disc loads: the map's sound, scene data and models, the prefetches.
       - [0x32FD0, c, gfx/vram]
-      - [0x33168, asm, s2d_2_s27a]
+      - [0x33168, c, game/mapmodel]
+      - [0x333DC, asm, s2d_after_mapmodel]
       - [0x33934, c, gfx/drawmodeclear]
       - [0x3395C, asm, s2d_drawmodequeue]
       - [0x33A1C, c, gfx/drawmodeset]
