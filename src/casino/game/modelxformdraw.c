@@ -1,20 +1,20 @@
 #include <persona/casino/casino.h>
 
-extern void CasinoTexObj(CasinoModel *);
-extern void CasinoSetXform(CasinoXform *);
-extern void CasinoDrawObj(CasinoObj *);
+extern void CasinoTexObj(CasinoModel*);
+extern void CasinoSetXform(CasinoXform*);
+extern void CasinoDrawObj(CasinoObj*);
 
-void func_80092DEC(CasinoModel *model, CasinoXform xform)
+void func_80092DEC(CasinoModel* model, SVECTOR rotation, VECTOR translation, VECTOR scale)
 {
-    model->obj->xform->rot.vx = xform.rot.vx;
-    model->obj->xform->rot.vy = xform.rot.vy;
-    model->obj->xform->rot.vz = xform.rot.vz;
-    model->obj->xform->trans.vx = xform.trans.vx;
-    model->obj->xform->trans.vy = xform.trans.vy;
-    model->obj->xform->trans.vz = xform.trans.vz;
-    model->obj->xform->scale.vx = xform.scale.vx;
-    model->obj->xform->scale.vy = xform.scale.vy;
-    model->obj->xform->scale.vz = xform.scale.vz;
+    model->obj->xform->rot.vx   = rotation.vx;
+    model->obj->xform->rot.vy   = rotation.vy;
+    model->obj->xform->rot.vz   = rotation.vz;
+    model->obj->xform->trans.vx = translation.vx;
+    model->obj->xform->trans.vy = translation.vy;
+    model->obj->xform->trans.vz = translation.vz;
+    model->obj->xform->scale.vx = scale.vx;
+    model->obj->xform->scale.vy = scale.vy;
+    model->obj->xform->scale.vz = scale.vz;
     CasinoTexObj(model);
     CasinoSetXform(model->obj->xform);
     CasinoDrawObj(model->obj);
