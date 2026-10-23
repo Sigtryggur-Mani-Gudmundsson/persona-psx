@@ -157,7 +157,7 @@ segments:
       - [0x19654, c, game/cardreset]
       - [0x19660, asm, casino_b_after_cardreset]
       - [0x1975C, c, game/handreset]
-      - [0x19828, asm, casino_b_after_handreset]
+      - [0x19828, c, game/bjsetup]
       - [0x19F6C, c, game/cardbetinput]
       - [0x1A1D0, c, game/betlamps]
       - [0x1A274, asm, casino_b_after_betlamps]
