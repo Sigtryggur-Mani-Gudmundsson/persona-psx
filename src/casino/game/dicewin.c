@@ -5,7 +5,7 @@ extern void *D_800A2BC8[];
 extern unsigned int g_casino_win;
 extern int g_casino_timer;
 extern short g_casino_seqs[], g_casino_vab;
-extern void func_8009019C(int *), CasinoTween(void *, short, short, short, short, short),
+extern void func_8009019C(int *), CasinoTween(void *, int, short, short, short, short),
     CasinoStartPalAnim(void *), CasinoPlaySeq(short *, unsigned int, short);
 typedef struct DiceWinMask
 {

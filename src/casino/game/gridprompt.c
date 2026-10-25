@@ -6,7 +6,7 @@
 
 extern short grid_tick __asm__("D_800AF9E8+0xD0");
 extern CasinoLayout *D_800A2BC8[];
-extern void CasinoTween(CasinoLayout *, short, short, short, short, short);
+extern void CasinoTween(CasinoLayout *, int, short, short, short, short);
 extern void CasinoShowLayout(CasinoLayout *, unsigned char);
 extern void CasinoSpritesSetOn(int, int, int);
 

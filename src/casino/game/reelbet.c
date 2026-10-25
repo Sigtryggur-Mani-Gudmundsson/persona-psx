@@ -5,7 +5,7 @@ extern CasinoPalAnim D_800999C0;
 extern u_char reel_bet_palette_on __asm__("D_800999C0+0x10");
 extern CasinoLayoutDef D_800A10D8;
 extern void CasinoStartPalAnim(CasinoPalAnim *);
-extern void func_800856A0(void), func_80085874(void), func_80087F48(int);
+extern void func_800856A0(void), func_80085874(void), func_80087F48(u_char);
 extern void func_80085920(u_char, short, short);
 extern void SsSeqStop(short), SsSeqPlay(short, char, short);
 extern void CasinoQueueCluts(short, short, int);

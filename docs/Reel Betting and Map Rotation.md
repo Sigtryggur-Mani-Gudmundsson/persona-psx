@@ -35,3 +35,29 @@ countdowns at zero and one, and preservation of other transform fields.
 Both routines require all eleven original JP1 binary SHA-256 checks. Native
 fixtures also run with address and undefined-behavior sanitizers; they do not
 establish emulator gameplay or a native Linux game boot.
+
+## Panel sliding
+
+`func_80087F48` moves three layouts in alternating directions while translating
+their associated object. Byte zero slides out; every other byte slides in.
+Each subsequent layout is read after the preceding tween call.
+
+All three layout pointers are read as `CasinoLayoutDef.l` fields. Horizontal
+tween distance is a full-width `int`, narrowed when stored in the tween argument
+record. The other tween parameters keep their existing widths; changing stack
+parameter widths alters the original wrapper's load instructions. The wrapper
+and existing callers retain their original bytes. The panel routine's512 native
+fixtures cover all byte modes and callbacks replacing the next layout pointer.
+
+## Reward-digit reveal
+
+`func_800913FC` accepts a byte value. Values below ten update and animate the
+single digit; other values write the remainder and quotient to the ones and
+tens models, update those textures in that order, and animate tens then ones.
+The three adjacent `CasinoModel` entries share one typed array. Object pointers
+are read after texture callbacks, as in the original assembly.
+
+The native fixture covers all 256 byte inputs both with and without callbacks
+replacing the animated objects. It removes only the PS1 linker alias so the same
+C body can use a host-sized model array. The 512 cases also check unused digits
+and call order. Sanitizers and all eleven binary hashes are acceptance gates.

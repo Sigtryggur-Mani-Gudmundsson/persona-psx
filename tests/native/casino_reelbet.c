@@ -33,7 +33,7 @@ void CasinoScroll(CasinoLayout *p,short du,short dv,short dw,short dh,short fram
 }
 void func_80085920(u_char a,short e,short s) {event(6);ranges++;active=a;end=e;start=s;}
 void func_80085874(void) {event(7);}
-void func_80087F48(int on) {event(8);if(on!=1) bad=1;}
+void func_80087F48(u_char on) {event(8);if(on!=1) bad=1;}
 void CasinoPlaySeq(short *handles,u_long *seq,short bank) {
     event(9);if(handles!=g_casino_seqs || seq!=(u_long *)0x125F54 || bank!=17) bad=1;
 }

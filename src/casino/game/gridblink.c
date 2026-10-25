@@ -7,7 +7,7 @@ typedef struct
 extern Layout*     grid_prompt __asm__("D_800A2BC8+868");
 extern short       grid_timer __asm__("D_800AF9E8+208");
 extern signed char D_800A8704;
-extern void        CasinoShowLayout(void*, unsigned char), CasinoTween(void*, short, short, short, short, short), CasinoSpritesSetOn(short, short, int);
+extern void        CasinoShowLayout(void*, unsigned char), CasinoTween(void*, int, short, short, short, short), CasinoSpritesSetOn(short, short, int);
 void               func_8008C2DC(short duration)
 {
     switch (grid_timer)

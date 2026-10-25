@@ -4,7 +4,7 @@
 extern signed char D_800AF73C[];
 extern CasinoLayout *D_800A2BC8[];
 extern void CasinoSpritesSetOn(int, int, int);
-extern void CasinoTween(CasinoLayout *, short, short, short, short, short);
+extern void CasinoTween(CasinoLayout *, int, short, short, short, short);
 
 void func_80089E7C(void)
 {

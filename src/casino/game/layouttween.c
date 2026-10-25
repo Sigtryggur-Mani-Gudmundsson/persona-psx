@@ -7,7 +7,7 @@
 
 extern CasinoLayout *D_800A2BC8[];
 extern void CasinoShowLayout(CasinoLayout *, u_char);
-extern void CasinoTween(CasinoLayout *, short, short, short, short, short);
+extern void CasinoTween(CasinoLayout *, int, short, short, short, short);
 
 void func_8008A9DC(int texture, short distance, short frames)
 {
