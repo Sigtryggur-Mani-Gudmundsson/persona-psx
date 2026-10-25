@@ -1,8 +1,8 @@
 /* Persona 1 (JP) - query a neighboring map cell's 0x800 flag. */
 #include <decomp/types.h>
-extern void func_80094E68(int, short, short *);
+extern void func_80094E68(void *, short, short *);
 
-bool func_80094F2C(int position, short facing)
+bool func_80094F2C(void *position, short facing)
 {
     short cell[2];
     u_char *map;

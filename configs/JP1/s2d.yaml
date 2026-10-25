@@ -296,7 +296,7 @@ segments:
       - [0x2FA58, asm, s2d_after_mapframe]
       - [0x301F4, c, game/facinglookup]
       - [0x30240, c, game/blinkstep]
-      - [0x302C0, asm, s2d_after_blinkstep]
+      - [0x302C0, c, game/mapactors]
       - [0x30694, c, game/packedmap]
       - [0x30768, c, game/tileinit]
       - [0x30AC8, asm, s2d_after_tileinit]
