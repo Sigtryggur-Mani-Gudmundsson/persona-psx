@@ -342,7 +342,7 @@ segments:
       - [0x2D56C, c, game/doublebounce]
       - [0x2D5FC, asm, casino_after_doublebounce]
       - [0x2D760, c, game/stepdouble]
-      - [0x2D7D8, asm, casino_after_stepdouble]
+      - [0x2D7D8, c, game/rotationstep]
       - [0x2D96C, c, game/rotationresponse]
       - [0x2DA90, c, game/scaledstep]
       - [0x2DB18, asm, casino_after_scaledstep]

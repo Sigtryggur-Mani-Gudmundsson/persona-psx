@@ -1,18 +1,7 @@
 #include <persona/casino/casino.h>
 #include <libsnd.h>
 
-typedef struct CasinoRotationResponse
-{
-    u_char pad00[0x50];
-    double angle;
-    u_char pad58[0x60];
-    double velocity;
-    u_char padC0[0x20];
-    s8 mode;
-    u_char padE1[2];
-    s8 band;
-    s8 previous_band;
-} CasinoRotationResponse;
+#include <persona/casino/rotation.h>
 
 void func_80091D0C(CasinoRotationResponse *value)
 {
