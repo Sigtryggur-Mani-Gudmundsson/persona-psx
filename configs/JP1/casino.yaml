@@ -150,7 +150,7 @@ segments:
       - [0x17FB8, c, game/bjnaturalrefresh]
       - [0x18174, c, game/bjpay]
       - [0x18544, c, game/bjbetsettle]
-      - [0x18844, asm, casino_after_bjbetsettle]
+      - [0x18844, c, game/bjsplitcleanup]
       - [0x1902C, c, game/dealerdispatch]
       - [0x190DC, c, game/dealercheck]
       - [0x19118, c, game/dealeranim]
