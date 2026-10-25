@@ -39,7 +39,6 @@ int main(void)
     }
     for (chosen = 0; chosen < 256; chosen += 17)
         for (value = 0; value < 256; value++) for (high = 0; high < 4; high++) {
-            expected.words[0] = expected.words[1] = expected.words[2] = 0xA5A5A5A5;
             for (row = 0; row < 3; row++) {
                 expected.rows[row].a = (u_char)(value + row * 73);
                 expected.rows[row].b = (u_char)(value + row * 31 + 1);
@@ -57,7 +56,7 @@ int main(void)
             layouts[chosen].tex_idx = 0;
             count++;
         }
-    if (count != 16384) return 4;
+    if (count != 16384 || sizeof(CasinoSymbolBlock) != 9 || sizeof(CasinoDigitRows) != 12) return 4;
     printf("%d native reel-texture fixtures passed\n", count);
     return 0;
 }

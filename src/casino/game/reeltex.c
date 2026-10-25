@@ -1,11 +1,6 @@
 /* Copy three symbol rows into the first three cells of five-cell texture rows. */
 #include <persona/casino/casino.h>
-
-typedef struct { u_char a, b, c; } CasinoSymbolRow;
-typedef union {
-    u_int words[3];
-    CasinoSymbolRow rows[3];
-} CasinoSymbolBlock;
+#include <persona/casino/grid.h>
 
 extern CasinoLayout *symbol_layouts[][2] __asm__("D_800A2BC8+0xB68");
 extern void CasinoTexLayout(CasinoLayout *);

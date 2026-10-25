@@ -9,7 +9,10 @@ Four routines are recovered as C with the original compiler and linker layout:
 | `func_8008CA28` | 280 | Check the current map tile against two blinking barriers, unless the caller supplies the bypass bit. |
 | `func_8009C36C` | 268 | Open or close the map scale in steps of 384, clamp its two visible components and advance its state. |
 
-The symbol block retains its twelve-byte PS1 argument representation. Each byte
+The nine-byte symbol block occupies three argument registers in the PS1 ABI;
+the unused high bytes are not part of the C object. Its shared declaration in
+`persona/casino/grid.h` preserves this distinction for future native callers.
+Each byte
 is interpreted as signed before adding 37; only the first three cells of each
 five-cell row change. Named row fields and a shared row index reproduce the
 original pointer progression without assembly or volatile workarounds.

@@ -3,11 +3,7 @@
 #include <libgpu.h>
 #include <libgs.h>
 #include <persona/casino/casino.h>
-
-typedef struct
-{
-    u8 digit[4][3];
-} CasinoDigitRows;
+#include <persona/casino/grid.h>
 extern CasinoLayout* digit_rows[][2] __asm__("D_800A2BC8+0xB68");
 extern void CasinoTexLayout(CasinoLayout*);
 
