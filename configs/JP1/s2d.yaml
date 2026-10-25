@@ -277,6 +277,7 @@ segments:
       - [0x279D8, c, game/mapdebug]
       - [0x27C98, c, game/audiodebug]
       - [0x27FAC, asm, s2d_after_audiodebug]
+      - [0x28688, c, game/tilepermission]
       - [0x287A0, c, game/directionsteps]
       - [0x28B18, asm, s2d_after_directionsteps]
       - [0x2954C, c, gfx/modelmap]
@@ -343,7 +344,7 @@ segments:
       - [0x37BFC, c, game/mapnodes]
       - [0x37CDC, c, game/mapscript]
       - [0x37F68, c, game/mapscale]
-      - [0x37FCC, asm, s2d_after_mapscale]
+      - [0x37FCC, c, game/mapscalestep]
       - [0x380D8, c, game/scenequad]
       # The overlay's own workspace: what the disc carries a value for,
       # and behind it the run of zeroes the loader never has to write.
