@@ -268,7 +268,7 @@ segments:
       - [0x257C8, c, game/sceneslide]
       - [0x25864, c, game/gridfinish]
       - [0x25ADC, c, game/gridack]
-      - [0x25C70, asm, casino_after_gridack]
+      - [0x25C70, c, game/gridroundreset]
       - [0x26288, c, game/gridaccept]
       - [0x265D4, c, game/clutmark]
       - [0x2663C, c, game/layouttween]
