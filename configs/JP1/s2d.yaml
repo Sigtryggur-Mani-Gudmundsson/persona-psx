@@ -304,7 +304,7 @@ segments:
       - [0x30C58, asm, s2d_after_mapfind]
       - [0x31DD4, c, game/statereset]
       - [0x31DF8, c, game/eventrecord]
-      - [0x31E84, asm, s2d_after_eventrecord]
+      - [0x31E84, c, game/encounterselect]
       - [0x320B4, c, scenemodeselect]
       - [0x32174, asm, s2d_after_scenemodeselect]
       - [0x3243C, c, game/scenealert]

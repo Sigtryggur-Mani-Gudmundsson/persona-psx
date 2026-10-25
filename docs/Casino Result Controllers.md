@@ -33,3 +33,11 @@ stores preserve the original write order. A further 64,512 native fixtures
 cover every lamp combination, coin boundaries, active/inactive requests,
 callback changes, cursor guards and packed item bits. Normal and ASan/UBSan
 runs pass with recovery disabled.
+
+`func_80089C04` (632 bytes) reveals the target grid, advances its cells and
+rolling digits, then enters state 119 once the completion flag is set. Its
+final block keeps a scoped ordinary pointer to that flag; a const pointer or
+direct global access causes different original-compiler output. The target
+grid argument is shared with `func_8008CBF8` through `persona/casino/grid.h`.
+Its 15,120 native and sanitizer fixtures cover frame 32, row/column call order,
+by-value grid data, callback changes, signed timer wrap and completion states.

@@ -265,7 +265,7 @@ segments:
       - [0x2524C, c, game/gridwin]
       - [0x25658, c, game/gridadvance]
       - [0x257C8, c, game/sceneslide]
-      - [0x25864, asm, casino_after_sceneslide]
+      - [0x25864, c, game/gridfinish]
       - [0x25ADC, c, game/gridack]
       - [0x25C70, asm, casino_after_gridack]
       - [0x26288, c, game/gridaccept]

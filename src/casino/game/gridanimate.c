@@ -1,11 +1,8 @@
 /* Advance each grid cell toward a by-value snapshot of the target grid. */
 #include <persona/casino/casino.h>
 #include <libsnd.h>
+#include <persona/casino/grid.h>
 
-typedef struct
-{
-    signed char cells[3][3];
-} TargetGrid;
 extern CasinoModel models[] __asm__("D_800A2BC8+4560");
 extern signed char D_800A9424[3][3];
 extern void        CasinoQueueCluts();
