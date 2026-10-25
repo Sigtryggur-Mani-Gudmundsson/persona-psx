@@ -1,7 +1,6 @@
 #include <persona/casino/blackjack.h>
 
 extern u_char D_800A8678[];
-extern void CasinoFade(short, short, u_char, u_char, u_char, short);
 
 void func_8007F7E8(u_char mode)
 {

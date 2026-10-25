@@ -1,8 +1,9 @@
+#include <persona/casino/casino.h>
+
 extern int g_casino_timer;
 extern unsigned char g_casino_step, D_800A8700;
 extern void CasinoGame4LoadVram0(void), CasinoGame4LoadVram1(void);
 extern void CasinoGame4LoadSound(void), func_8008BD08(void), func_8008BFC4(void);
-extern void CasinoFade(short, short, unsigned char, unsigned char, unsigned char, short);
 extern void func_8008AA64(int, int), CasinoSpritesSetOn(int, int, int);
 
 void func_80088818(void)

@@ -1,5 +1,5 @@
 /* Persona 1 (JP) - dispatch the blackjack play state. */
-#include <decomp/types.h>
+#include <persona/casino/blackjack.h>
 void func_80079AD8();                                  /* extern */
 void func_80079C28();                                  /* extern */
 void func_8007A10C();                                  /* extern */
@@ -9,7 +9,6 @@ void func_8007A654();                                  /* extern */
 void func_8007A77C();                                  /* extern */
 void func_8007A8B4();                                  /* extern */
 void func_8007A9F8();                                  /* extern */
-void func_8007D3CC(u8 *);                              /* extern */
 extern u8 g_bj_play_step;
 
 void func_800799F0(void) {

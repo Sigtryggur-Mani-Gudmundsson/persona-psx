@@ -386,6 +386,8 @@ typedef struct {
     short     frames;
 } CasinoFadeArg;
 
+void CasinoFade(int first, int count, u_char r, u_char g, u_char b, short frames);
+
 /* The overlay's own. */
 extern CasinoFadeQueue  g_casino_fades;
 extern CasinoPalAnims   g_casino_palanims;

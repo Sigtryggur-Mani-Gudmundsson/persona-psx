@@ -16,7 +16,7 @@
 void CasinoAddFade(CasinoFadeArg a);
 
 /* Aggregate initialization preserves the original argument packing. */
-void CasinoFade(short first, short count, u_char r, u_char g, u_char b, short frames)
+void CasinoFade(int first, int count, u_char r, u_char g, u_char b, short frames)
 {
     CasinoFadeArg a = { first, count, { r, g, b }, frames };
 

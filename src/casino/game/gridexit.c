@@ -6,7 +6,6 @@ extern CasinoLayout *money_layout __asm__("D_800A2BC8+0x20F0");
 extern CasinoObj *exit_object0 __asm__("D_800A2BC8+0x39F0");
 extern CasinoObj *exit_object1 __asm__("D_800A2BC8+0x3A04");
 extern void CasinoPlaySeq(short *, u_int, short);
-extern void CasinoFade();
 extern void CasinoQueueCluts();
 extern void CasinoShowNumber();
 extern void CasinoStartAnim();
