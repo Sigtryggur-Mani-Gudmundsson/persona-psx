@@ -310,7 +310,7 @@ segments:
       - [0x32174, asm, s2d_after_scenemodeselect]
       - [0x3243C, c, game/scenealert]
       - [0x32564, c, game/mapdrawmodes]
-      - [0x32698, asm, s2d_after_mapdrawmodes]
+      - [0x32698, c, game/mapring]
       - [0x32A44, c, game/copywords]
       - [0x32A6C, asm, s2d_after_copywords]
       - [0x32E34, c, game/mapfrontdraw]
