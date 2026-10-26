@@ -126,7 +126,7 @@ segments:
       - [0x1304, .rodata, game/actorplace]
       - [0x1348, pad, adv_pad_1348]
       - [0x134C, .rodata, game/stats]
-      - [0x1390, rodata, adv_rodata8]
+      - [0x1390, c, common/gfx/slotrender]
       - [0x1924, c, common/gfx/slot]
       - [0x1C6C, c, common/gfx/fade]
       - [0x1D14, c, gfx/slotfade]

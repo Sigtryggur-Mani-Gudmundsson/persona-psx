@@ -104,7 +104,7 @@ segments:
       - [0xD3C, .rodata, game/mapevent]
       - [0xD58, rodata, s2d_rodata3d_padding]
       - [0xD5C, .rodata, game/mapscript]
-      - [0xE80, asm, s2d]
+      - [0xE80, c, common/gfx/slotrender]
       - [0x1414, c, common/gfx/slot]
       - [0x175C, c, common/gfx/fade]
       - [0x1804, c, common/gfx/slotfade]
