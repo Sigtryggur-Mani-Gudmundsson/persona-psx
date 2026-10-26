@@ -290,6 +290,7 @@ segments:
       - [0x2CF80, asm, s2d_2_s27_c]
       - [0x2D984, c, game/mapclose]
       - [0x2DEAC, asm, s2d_after_mapclose]
+      - [0x2E8CC, c, game/mapfade]
       - [0x2ED84, c, gfx/fadetiles]
       - [0x2F0B8, c, game/mappage]
       - [0x2F2E0, c, ui/msgopen]
