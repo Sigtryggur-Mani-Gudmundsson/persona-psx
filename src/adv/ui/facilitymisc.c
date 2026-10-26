@@ -1544,7 +1544,6 @@ void CoinShopCountStep(void)
     }
 }
 
-#ifdef NON_MATCHING
 /* Lays out the coin counter: eight rows of stock with their prices in
    coins, the count window, and the coins left. */
 void CoinShopOpen(void)
@@ -1571,7 +1570,15 @@ void CoinShopOpen(void)
 
         cell = 0x37F;
         for (i = 15; i >= 0; i--) {
-            *AT(g_tilemap1, i, 12) = cell;
+            short *dst = AT(g_tilemap1, i, 12);
+
+            /* Keep both equivalent writes: GCC 2.6 folds the branch, but its
+               index use preserves the original loop register allocation. */
+            if (i) {
+                *dst = cell;
+            } else {
+                *dst = cell;
+            }
         }
     }
     TileMapFillRect(AT(g_tilemap0, 2, 13), 0x17, 2, 8, MAP_W);
@@ -1625,9 +1632,6 @@ void CoinShopOpen(void)
     ShopBuyListDraw2();
     g_map_scroll_y = g_item_top * 12;
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/facilitymisc", CoinShopOpen);
-#endif
 
 /* Keeps the message running until any button is pressed. The coin
    exchange has it expanded. */
