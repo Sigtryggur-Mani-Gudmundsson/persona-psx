@@ -46,7 +46,11 @@ extern u_char  g_moon;
 extern u_char  g_kind_labels[];
 extern u_char  D_800BA0E4[];
 extern u_char  g_fuse_random_personas[];
-extern u_char  D_800B9CAB[][0x16];
+extern short   g_trade_items[];
+
+/* The arcana bonus bytes begin 0x2F bytes into the trade-item data. */
+#define FUSE_ARCANA_BONUS_OFFSET 0x2F
+#define FUSE_ARCANA_COUNT        0x16
 
 extern int   rand(void);
 extern short FuseInheritSpell(short persona, u_char src, void *spell, void *rank);
@@ -219,9 +223,6 @@ short FuseRollAccident(short rank)
     }
 }
 
-/* 96.6%: the image schedules the result pointer's setup a few slots
-   later in the prologue. */
-#ifdef NON_MATCHING
 /* The offering line: the two sources, the item, and what they make. */
 void FuseItemsDraw(void)
 {
@@ -229,8 +230,8 @@ void FuseItemsDraw(void)
     short    n;
 
     n = g_use_top * 2 + g_menu->unk2E0.cur + g_menu->unk2D0.cur * 2;
-    res = &g_fuse.persona;
     TileMapFillRect(AT(g_tilemap2, 1, 2), 0, 0xB, 1, MAP_W);
+    res = &g_fuse.persona;
     TileMapFillRect(AT(g_tilemap2, 1, 16), 0, 0xB, 1, MAP_W);
     TileMapFillRect(AT(g_tilemap2, 3, 10), 0, 0xA, 1, MAP_W);
     TileMapFillRect(AT(g_tilemap2, 5, 1), 0, 0xA, 1, MAP_W);
@@ -251,13 +252,7 @@ void FuseItemsDraw(void)
     TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 5, 15), GLYPH_DIGIT0,
         FormatDecimal(g_persona_defs[*res].level, g_hud_digits, 2));
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/fuserules", FuseItemsDraw);
-#endif
 
-/* 97.5%: the arcana table's base is added as a register in the image
-   rather than folded into the load. */
-#ifdef NON_MATCHING
 /* An item's contribution: by its class, magic attack, a stat, the arcana's
    own value, a fixed Persona, or - for the random class - a stat nudged up
    or down or, one time in five, a Persona picked by the moon. */
@@ -338,7 +333,9 @@ void FuseItemBonus(short arcana, short item, int unused2, int unused3,
         out->random = 1;
         break;
     case 0xA0:
-        out->unkC = D_800B9CAB[item][arcana];
+        out->unkC = ((u_char *)g_trade_items)[FUSE_ARCANA_BONUS_OFFSET
+                                             + item * FUSE_ARCANA_COUNT
+                                             + arcana];
         break;
     case 0x60:
         switch (f & 0x1F) {
@@ -368,6 +365,3 @@ void FuseItemBonus(short arcana, short item, int unused2, int unused3,
         break;
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/fuserules", FuseItemBonus);
-#endif
