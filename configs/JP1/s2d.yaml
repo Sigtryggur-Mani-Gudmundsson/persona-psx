@@ -296,7 +296,7 @@ segments:
       - [0x2F2E0, c, ui/msgopen]
       - [0x2F45C, c, game/msggradient]
       - [0x2F740, c, game/mapframe]
-      - [0x2FA58, asm, s2d_after_mapframe]
+      - [0x2FA58, c, game/mappresent]
       - [0x301F4, c, game/facinglookup]
       - [0x30240, c, game/blinkstep]
       - [0x302C0, c, game/mapactors]
