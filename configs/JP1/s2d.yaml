@@ -55,7 +55,7 @@ segments:
     subsegments:
       - [0x0, rodata, s2d_id]
       # 0x4..0xE80 is the leading rodata block; the entry point is at 0xE80.
-      - [0x4, rodata, s2d_rodata]
+      - [0x4, .rodata, gfx/bgreset]
       - [0x58, .rodata, ui/mainmenu]
       - [0x70, .rodata, ui/itemtop]
       - [0x90, .rodata, ui/statusmenu]
