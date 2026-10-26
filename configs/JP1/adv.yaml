@@ -119,8 +119,8 @@ segments:
       - [0xDC0, .rodata, ui/fusesearch]
       - [0xDD8, .rodata, ui/fusion]
       - [0xDEC, rodata, adv_rodata7c]
-      # FuseItemBonus emits its two switch tables, including their padding.
-      - [0xE30, .rodata, ui/fuserules]
+      # The fusion rules emit their three switch tables and padding.
+      - [0xE18, .rodata, ui/fuserules]
       - [0xED8, rodata, adv_rodata7c1]
       # FuseSpecialMatch's table, and the step tables after it.
       - [0xEF0, .rodata, ui/facilitymisc]

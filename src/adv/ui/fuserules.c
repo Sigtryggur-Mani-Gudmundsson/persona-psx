@@ -8,7 +8,6 @@
  * of a given kind leaves on the new Persona, and what an offered item adds.
  */
 #include <decomp/types.h>
-#include <decomp/include_asm.h>
 #include <libgte.h>
 #include <libgpu.h>
 #include <libgs.h>
@@ -58,9 +57,6 @@ extern void  DrawItemName(int id, short *dst, u_short base, int b);
 extern void  FuseCompute(u_char a, u_char b, short mode, FuseResult *out,
                            short special);
 
-/* 96.7%: the image loads both stock bytes before converting `mode` and
-   keeps them in a3/a1; this build converts first. */
-#ifdef NON_MATCHING
 /* A fusion of kind 1 raises magic attack by 20 and a stat by 5; kinds 1 and
    3 of the second roll carry an affinity across from a source and move every
    stat a point up or down, kind 2 only the affinity. */
@@ -68,8 +64,6 @@ void FuseApplyBonus(short p, short kind, short mode)
 {
     Persona *r = &g_personas[p];
     int      s;
-    u_char   a;
-    u_char   b;
     u_char   spell;
     short    rank;
     int      top;
@@ -105,11 +99,12 @@ void FuseApplyBonus(short p, short kind, short mode)
             break;
         }
     }
-    a = g_persona_stock[g_menu->top.cur];
-    b = g_persona_stock[g_menu->status_page.cur];
+    /* Reuse the stat selector locals for the two source stock entries. */
+    top = g_persona_stock[g_menu->status_page.cur];
+    s = g_persona_stock[g_menu->top.cur];
     switch (mode) {
     case 1:
-        if (FuseInheritSpell(g_fuse.persona, a, &spell, &rank) && r->raw[6] == 0) {
+        if (FuseInheritSpell(g_fuse.persona, s, &spell, &rank) && r->raw[6] == 0) {
             r->raw[6] = spell;
         }
         r->stat[0] += 1;
@@ -119,12 +114,12 @@ void FuseApplyBonus(short p, short kind, short mode)
         r->stat[4] += 1;
         break;
     case 2:
-        if (FuseInheritSpell(g_fuse.persona, b, &spell, &rank) && r->raw[6] == 0) {
+        if (FuseInheritSpell(g_fuse.persona, top, &spell, &rank) && r->raw[6] == 0) {
             r->raw[6] = spell;
         }
         break;
     case 3:
-        if (FuseInheritSpell(g_fuse.persona, a, &spell, &rank) && r->raw[6] == 0) {
+        if (FuseInheritSpell(g_fuse.persona, s, &spell, &rank) && r->raw[6] == 0) {
             r->raw[6] = spell;
         }
         r->stat[0] -= 1;
@@ -135,9 +130,6 @@ void FuseApplyBonus(short p, short kind, short mode)
         break;
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/fuserules", FuseApplyBonus);
-#endif
 
 /* The kind a stray result comes out as. */
 short FuseRollKind(void)
