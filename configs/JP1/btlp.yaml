@@ -160,7 +160,8 @@ segments:
       # personaguard.c emits itself, each of the first two with the word of
       # padding behind it inside the unit.
       - [0xDB0, .rodata, personaguard]
-      - [0xEC4, rodata, btlp_rodata6b]
+      # BtlStageCommand's six-entry picker-state table.
+      - [0xEC4, .rodata, commandstage]
       # BtlReadySpellAction's switch table, which talkorders.c emits itself,
       # and the word of padding behind it that belongs to nobody.
       - [0xEDC, .rodata, talkorders]
