@@ -147,8 +147,9 @@ segments:
       # the word of padding behind it that belongs to nobody.
       - [0xD20, .rodata, ailtaketurn]
       - [0xD5C, rodata, btlp_rodata6a0]
-      # BtlAilmentTurnPanic's switch table sits in here too, and becomes
-      # `[0xD60, .rodata, ailpanic]` when the routine comes out of its guard.
+      # BtlAilmentTurnPanic emits its seven-entry switch table.
+      - [0xD60, .rodata, ailpanic]
+      - [0xD7C, pad, btlp_pad_d7c]
       # BtlRollDefeatDrop's rate table, which the C emits itself, and the word of
       # padding behind it that belongs to nobody.
       - [0xD80, .rodata, defeatdrop]
