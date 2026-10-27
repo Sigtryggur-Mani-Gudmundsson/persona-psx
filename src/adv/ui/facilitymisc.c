@@ -213,7 +213,6 @@ extern void func_80077F8C(int a, int b);
 extern void func_8007A62C(int a, int b);
 extern int  MsgStep(void);
 
-#ifdef NON_MATCHING
 /* Works out what Personas a and b fuse into: the arcana from the chart
    (or the one given), the Persona of that arcana for their average level,
    and with an item offered (mode), whether the item changes it. */
@@ -223,7 +222,6 @@ void FuseCompute(u_char a, u_char b, short mode, FuseResult *out, short arcana)
     int   ar_b;
     int   level;
     int   r;
-    int   t;
 
     ar_a = g_persona_data[a].arcana - 1;
     ar_b = g_persona_data[b].arcana - 1;
@@ -266,16 +264,15 @@ void FuseCompute(u_char a, u_char b, short mode, FuseResult *out, short arcana)
         if (g_fuse_bonus_spell && FuseSpellAllowed(out->persona, g_fuse_bonus_spell)) {
             out->flag = 1;
         }
-        t = FuseArcanaStep(out->arcana, out->persona, g_fuse_bonus_step);
-        if (t != r) {
+        /* Reuse the first arcana local for the stepped result to preserve
+         * gcc 2.6 register lifetimes across the earlier table lookups. */
+        ar_a = FuseArcanaStep(out->arcana, out->persona, g_fuse_bonus_step);
+        if (ar_a != r) {
             out->flag = 1;
-            out->persona = t;
+            out->persona = ar_a;
         }
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/facilitymisc", FuseCompute);
-#endif
 
 #ifdef NON_MATCHING
 /* Steps through an arcana's Personas in the fusion tables: dir 1 and 2
