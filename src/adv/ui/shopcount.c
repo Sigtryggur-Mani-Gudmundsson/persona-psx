@@ -151,16 +151,13 @@ void ShopLoadPrices2(short shop)
 u_char ShopCanBuy(u_char row);
 u_char ShopCanBuy2(u_char row);
 
-/* 96.6%: the row pointer and the grey offset share s1 in the image, the
-   dim flag s0; this build swaps them. */
-#ifdef NON_MATCHING
 /* The stock with prices; a row that cannot be bought is greyed. */
 void ShopBuyListDraw(void)
 {
     u_char *fac = g_facility;
     int    *prices = g_shop_prices;
     u_char  i;
-    int     dim;
+    short   dim;
     int     grey;
 
     i = 0;
@@ -171,29 +168,25 @@ void ShopBuyListDraw(void)
             grey = dim * 0xD7;
             DrawItemName(g_shop_items[i], AT(g_tilemap1, i, 0), grey, 0);
             TileMapWriteRowRev(g_hud_digits, AT(g_tilemap1, i, 21),
-                               grey + GLYPH_DIGIT0,
+                               (u_short)(grey + GLYPH_DIGIT0),
                                FormatDecimal(prices[i], g_hud_digits, 9));
             *AT(g_tilemap1, i, 12) = grey + 0xD0;
             i++;
         } while (i < fac[2]);
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/shopcount", ShopBuyListDraw);
-#endif
 
-/* 83.6%: the image spills the counter pointer to the stack and keeps
-   the prices base in s8. */
-#ifdef NON_MATCHING
 void ShopBuyListDraw2(void)
 {
+    int    *prices;
     u_char  i;
     int     dim;
     int     grey;
     u_char *fac;
 
-    i = 0;
     fac = g_facility;
+    prices = g_shop_prices;
+    i = 0;
     if (g_facility_count) {
         do {
             dim = ShopCanBuy2(i) == 0;
@@ -202,15 +195,12 @@ void ShopBuyListDraw2(void)
             grey = dim * 0xD7;
             DrawItemName(g_shop_items[i], AT(g_tilemap1, i, 0), grey, 0);
             TileMapWriteRowRev(g_hud_digits, AT(g_tilemap1, i, 21),
-                               grey + GLYPH_DIGIT0,
-                               FormatDecimal(g_shop_prices[i], g_hud_digits, 9));
+                               (u_short)(grey + GLYPH_DIGIT0),
+                               FormatDecimal(prices[i], g_hud_digits, 9));
             i++;
         } while (i < fac[2]);
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/shopcount", ShopBuyListDraw2);
-#endif
 
 /* Keep the byte offset first so GCC preserves the image's addu operands. */
 void ShopMemberNames(void)
