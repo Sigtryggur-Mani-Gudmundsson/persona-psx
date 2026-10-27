@@ -224,7 +224,7 @@ segments:
       - [0x1CA00, c, common/game/formation]
       - [0x1CD88, c, common/game/formationplace]
       - [0x1CE88, c, common/game/formationfits]
-      - [0x1CF2C, asm, s2d_2_s20_x3]
+      - [0x1CF2C, c, ui/formationpresets]
       - [0x1D090, c, common/game/equip]
       - [0x1D2A8, c, common/game/formationmembers]
       - [0x1D440, c, common/game/formationcompact]
