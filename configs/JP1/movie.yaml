@@ -52,8 +52,8 @@ segments:
     start: 0x800
     vram: 0x80080000
     subsegments:
-      # MoviePlay's file name; .rodata of the movie unit once MoviePlay is C.
-      - [0x800, rodata, movie_rodata]
+      # MoviePlay's file name, the movie unit's only rodata.
+      - [0x800, .rodata, movie]
       # The Psy-Q libraries' rodata, in link order after ours.
       - [0x814, rodata, psyq/rodata]
       - [0x163C, c, movie]
