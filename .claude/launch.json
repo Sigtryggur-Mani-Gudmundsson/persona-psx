@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "progress-site",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8000", "--bind", "127.0.0.1", "--directory", "build/JP1/site"],
+      "port": 8000
+    }
+  ]
+}
