@@ -274,10 +274,11 @@ void FuseCompute(u_char a, u_char b, short mode, FuseResult *out, short arcana)
     }
 }
 
-#ifdef NON_MATCHING
 /* Steps through an arcana's Personas in the fusion tables: dir 1 and 2
    go down one or two, 3 and 4 up, never past either end, and a special
-   Persona is stepped over rather than landed on. */
+   Persona is stepped over rather than landed on. Reuse the boundary local
+   for the one-step candidate; the upward two-step path keeps its boundary
+   return outside the work block, as in the original compiler's layout. */
 short FuseArcanaStep(short arcana, short cur, short dir)
 {
     int n;
@@ -291,16 +292,18 @@ short FuseArcanaStep(short arcana, short cur, short dir)
         if (cur == n) {
             return n;
         }
-        if (FuseSpecialHas(cur - 1)) {
+        n = (short)(cur - 1);
+        if (!FuseSpecialHas(n)) {
+            return n;
+        } else {
             return cur;
         }
-        return cur - 1;
     case 2:
         n = g_arcana_personas[arcana * 2];
-        r = cur;
         if (cur == n) {
             return n;
         }
+        r = cur;
         if (!FuseSpecialHas(cur - 1)) {
             r--;
         }
@@ -316,31 +319,30 @@ short FuseArcanaStep(short arcana, short cur, short dir)
         if (cur == n) {
             return n;
         }
-        if (FuseSpecialHas(cur + 1)) {
+        n = (short)(cur + 1);
+        if (!FuseSpecialHas(n)) {
+            return n;
+        } else {
             return cur;
         }
-        return cur + 1;
     case 4:
         n = g_arcana_personas[arcana * 2] + g_arcana_personas[1 + arcana * 2] - 1;
-        r = cur;
-        if (cur == n) {
-            return n;
-        }
-        if (!FuseSpecialHas(cur + 1)) {
-            r++;
-        }
-        if (cur + 1 == n) {
+        if (cur != n) {
+            r = cur;
+            if (!FuseSpecialHas(cur + 1)) {
+                r++;
+            }
+            if (cur + 1 == n) {
+                return r;
+            }
+            if (!FuseSpecialHas(cur + 2)) {
+                r = cur + 2;
+            }
             return r;
         }
-        if (!FuseSpecialHas(cur + 2)) {
-            r = cur + 2;
-        }
-        return r;
+        return n;
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/facilitymisc", FuseArcanaStep);
-#endif
 
 /* Whether a Persona's definition lists `spell` among its first six. */
 u_char PersonaDefHasSpell(short persona, short spell)

@@ -120,9 +120,8 @@ segments:
       - [0xDEC, rodata, adv_rodata7c]
       # The fusion rules emit their three switch tables and padding.
       - [0xE18, .rodata, ui/fuserules]
-      - [0xED8, rodata, adv_rodata7c1]
-      # FuseSpecialMatch's table, and the step tables after it.
-      - [0xEF0, .rodata, ui/facilitymisc]
+      # FuseArcanaStep, FuseSpecialMatch and the following step tables.
+      - [0xED8, .rodata, ui/facilitymisc]
       - [0x10BC, pad, adv_pad_10bc]
       - [0x10C0, .rodata, game/money]
       - [0x113C, rodata, adv_rodata7c2]
