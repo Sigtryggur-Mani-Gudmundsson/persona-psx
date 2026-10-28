@@ -342,7 +342,7 @@ segments:
       - [0x34B8C, c, game/mapglyph]
       - [0x34EFC, asm, s2d_after_mapglyph]
       - [0x35590, c, game/mapspacing]
-      - [0x355AC, asm, s2d_after_mapspacing]
+      - [0x355AC, c, game/panelconfigure]
       - [0x35630, c, game/mapentry]
       - [0x35660, c, game/recordupdate]
       - [0x35738, c, game/panelgradient]
