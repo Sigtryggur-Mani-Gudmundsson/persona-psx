@@ -224,7 +224,7 @@ segments:
       - [0x1F85C, c, game/reelaward]
       - [0x1FA08, c, game/reelpayout]
       - [0x1FBEC, c, game/reelreturn]
-      - [0x1FD28, asm, casino_after_reelpayout]
+      - [0x1FD28, c, game/reelwin]
       - [0x200A4, c, game/paletteset]
       - [0x20134, c, game/rankpalette]
       - [0x201E4, asm, casino_after_rankpalette]
