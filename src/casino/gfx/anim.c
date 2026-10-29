@@ -57,7 +57,6 @@ void CasinoAddAnim(CasinoAnimArg a)
     g_casino_anims.n++;
 }
 
-#ifdef NON_MATCHING
 void CasinoStepAnims(void)
 {
     CasinoObj   *o;
@@ -67,8 +66,9 @@ void CasinoStepAnims(void)
     int          k;
 
     for (i = 0; i < g_casino_anims.n; i++) {
-        d = &g_casino_anims.delta[i];
+        k = i;
         o = g_casino_anims.obj[i];
+        d = &g_casino_anims.delta[k];
         x = o->xform;
         x->rot.vx += d->rot.vx;
         x->rot.vy += d->rot.vy;
@@ -93,9 +93,3 @@ void CasinoStepAnims(void)
         CasinoDrawObj(o);
     }
 }
-#else
-/* 94.16%: the image starts the removal loop's pointer givs from the outer
-   loop's i*4 and i*40 registers (cse2 reuses them); here cse2 recomputes
-   them in the preheader, which shifts the registers that follow. */
-INCLUDE_ASM("casino/nonmatchings/gfx/anim", CasinoStepAnims);
-#endif
