@@ -254,7 +254,7 @@ segments:
       - [0x235C4, c, game/reelswap]
       - [0x23768, asm, casino_after_reelswap]
       - [0x23BA8, c, game/panelslide]
-      - [0x23C8C, asm, casino_after_panelslide]
+      - [0x23C8C, c, game/reelstatistics]
       - [0x24224, c, game/reelchoiceexit]
       - [0x24350, c, game/statedispatch2]
       - [0x24478, c, game/game4init]
