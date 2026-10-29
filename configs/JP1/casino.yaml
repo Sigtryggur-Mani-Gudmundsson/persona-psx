@@ -184,7 +184,7 @@ segments:
       - [0x1BC0C, c, game/cardseq]
       - [0x1BCF4, c, game/rankseq]
       - [0x1BDD8, c, game/cardcycle]
-      - [0x1BED0, asm, casino_after_cardcycle]
+      - [0x1BED0, c, game/cardtest]
       - [0x1C538, c, game/cardresetanim]
       - [0x1C6D8, c, game/cardselect]
       - [0x1CA6C, c, game/blackjackdealexit]
