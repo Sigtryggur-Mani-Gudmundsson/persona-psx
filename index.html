@@ -2772,7 +2772,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 </script>
 <script>
 (() => {
-  const revision = "efffb00bb36fd98cfbe2a8f8bea3df18e7efca62be50a13eb5900e2f36249240";
+  const revision = "f711791f8ac0c911c744433db084a42b7670226becb7188343e51c83e6136907";
   async function checkPublishedVersion() {
     if (document.hidden) return;
     try {
@@ -2813,10 +2813,15 @@ html&gt;body{padding:0}&lt;/style&gt;
 <style>
 #persona-signal{position:fixed;bottom:20px;left:20px;z-index:10000;width:44px;height:44px;border:1px solid #425462;border-radius:50%;background:#15232e;color:#9be5bc;font:24px system-ui;cursor:pointer;touch-action:none;user-select:none}
 #persona-signal:active{background:#34634d}#persona-signal:focus-visible{outline:3px solid #9be5bc;outline-offset:3px}
+#persona-signal[data-feedback="wrong"]{background:#b91c1c;border-color:#fca5a5;color:white;box-shadow:0 0 0 7px #ef444440}
+#persona-signal[data-feedback="right"]{background:#15803d;border-color:#86efac;color:white;box-shadow:0 0 0 7px #22c55e40}
+#persona-signal-status{position:fixed;bottom:28px;left:76px;z-index:10000;background:#15232e;color:#eef6f3;border-radius:6px;font:14px system-ui;padding:6px 10px;pointer-events:none}
+#persona-signal-status:empty{display:none}
 #persona-backup{width:min(360px,calc(100vw - 60px));padding:24px;border:1px solid #425462;border-radius:16px;background:#15232e;color:#eef6f3;font:14px/1.6 system-ui;box-shadow:0 12px 36px #0007}
 #persona-backup::backdrop{background:#0009}#persona-backup h2{margin:0 0 12px;font-size:22px}#persona-backup a{color:#9be5bc}#persona-backup button{float:right;background:transparent;color:inherit;border:1px solid #425462;border-radius:6px;padding:5px 10px;cursor:pointer}
 </style>
 <button id="persona-signal" type="button" aria-label="Signal — tap or hold" title="Tap or hold">·</button>
+<span id="persona-signal-status" role="status" aria-live="polite" aria-atomic="true"></span>
 <dialog id="persona-backup" aria-labelledby="persona-backup-title">
 <button type="button" id="persona-backup-close" aria-label="Close backup status">×</button>
 <h2 id="persona-backup-title">Private backup</h2>
@@ -2827,18 +2832,21 @@ html&gt;body{padding:0}&lt;/style&gt;
 <script id="persona-morse-script">
 (() => {
  const button=document.getElementById('persona-signal'),panel=document.getElementById('persona-backup');
- const code='...---...';let sequence='',last=0,down=null,pointer=null;
- function reset(){sequence='';down=null;pointer=null;}
- function signal(symbol){const now=performance.now();if(now-last>4000)sequence='';last=now;sequence+=symbol;if(!code.startsWith(sequence))sequence=symbol==='.'?'.':'';if(sequence===code){reset();panel.showModal();document.getElementById('persona-backup-close').focus();}}
- function end(){if(down===null)return;const duration=performance.now()-down;down=null;if(duration>=2000){reset();return;}signal(duration>=300?'-':'.');}
- button.addEventListener('pointerdown',e=>{if(e.button!==0||pointer!==null)return;e.preventDefault();pointer=e.pointerId;down=performance.now();button.setPointerCapture(e.pointerId);});
+ const status=document.getElementById('persona-signal-status');
+ const code='...---...';let sequence='',down=null,pointer=null,idleTimer,feedbackTimer,complete=false;
+ function reset(){clearTimeout(idleTimer);sequence='';down=null;pointer=null;}
+ function flash(result){clearTimeout(feedbackTimer);button.dataset.feedback=result;status.textContent=result==='right'?'Unlocked':'Try again';feedbackTimer=setTimeout(()=>{delete button.dataset.feedback;status.textContent='';},1800);}
+ function wrong(){reset();flash('wrong');}
+ function signal(symbol){if(complete)return;clearTimeout(idleTimer);sequence+=symbol;if(!code.startsWith(sequence)){wrong();return;}if(sequence===code){reset();complete=true;flash('right');setTimeout(()=>{panel.showModal();document.getElementById('persona-backup-close').focus();},450);}else{idleTimer=setTimeout(wrong,4000);}}
+ function end(){if(down===null)return;const duration=performance.now()-down;down=null;if(duration>=2000){wrong();return;}signal(duration>=300?'-':'.');}
+ button.addEventListener('pointerdown',e=>{if(complete||e.button!==0||pointer!==null)return;e.preventDefault();pointer=e.pointerId;down=performance.now();button.setPointerCapture(e.pointerId);});
  button.addEventListener('pointerup',e=>{if(e.pointerId!==pointer)return;e.preventDefault();end();pointer=null;});
  button.addEventListener('pointercancel',reset);
- button.addEventListener('keydown',e=>{if(e.repeat)return;if(e.key==='.'||e.key==='-'){e.preventDefault();signal(e.key);}else if(e.key===' '||e.key==='Enter'){e.preventDefault();if(down===null)down=performance.now();}});
+ button.addEventListener('keydown',e=>{if(e.repeat||complete)return;if(e.key==='.'||e.key==='-'){e.preventDefault();signal(e.key);}else if(e.key===' '||e.key==='Enter'){e.preventDefault();if(down===null)down=performance.now();}});
  button.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();end();}});
  button.addEventListener('blur',()=>{down=null;pointer=null;});
  document.getElementById('persona-backup-close').addEventListener('click',()=>panel.close());
- panel.addEventListener('close',()=>button.focus());
+ panel.addEventListener('close',()=>{complete=false;button.focus();});
 })();
 </script>
 
