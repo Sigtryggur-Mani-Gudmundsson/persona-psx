@@ -240,7 +240,7 @@ segments:
       - [0x216DC, c, game/reelready]
       - [0x217D4, c, game/cardrowsettle]
       - [0x21958, c, game/reelmanual]
-      - [0x21B68, asm, casino_reelmanual_lines]
+      - [0x21B68, c, game/reelmanualscan]
       - [0x21FAC, c, game/reelupdate]
       - [0x22408, c, game/reeltransition]
       - [0x22500, c, game/reeladvance]
