@@ -73,7 +73,8 @@ void CasinoStartPalCycle(CasinoPalCycle *c)
     c->on = 1;
 }
 
-#ifdef NON_MATCHING
+/* The rotation and expiry paths reuse their integer temporaries. Keep the
+ * previous timer in a short before comparing it with the cycle length. */
 void CasinoStepPalCycles(void)
 {
     CasinoPalCycle *c;
@@ -82,9 +83,12 @@ void CasinoStepPalCycles(void)
     int             j;
     int             k;
     int             q;
+    int             ahead;
     int             t;
     int             w;
     short           n;
+    short           old_timer;
+    int             timer_raw;
 
     for (i = 0; i < g_casino_palcycles.n; i++) {
         c = g_casino_palcycles.a[i];
@@ -94,13 +98,19 @@ void CasinoStepPalCycles(void)
             t = g_casino_palcycles.t[i];
             w = c->wait + 1;
             for (j = 0; j < n; j += 2) {
-                q = t / w;
-                g_casino_pal_buf[(q + 1 + j) % n] = c->pal[j + 1];
+                k = t;
+                timer_raw = w;
+                q = k / timer_raw;
+                ahead = q + 1;
+                g_casino_pal_buf[(j + ahead) % n] = c->pal[j + 1];
                 g_casino_pal_buf[(j + q) % n] = c->pal[j];
             }
             CasinoQueueImage((u_long *)g_casino_pal_buf, &c->r);
         }
-        if (g_casino_palcycles.t[i]++ == len - 1) {
+        k = i;
+        timer_raw = g_casino_palcycles.t[i]++;
+        old_timer = timer_raw;
+        if (old_timer == len - 1) {
             c->on = 0;
             for (k = i; k < g_casino_palcycles.n; k++) {
                 g_casino_palcycles.a[k] = g_casino_palcycles.a[k + 1];
@@ -112,8 +122,3 @@ void CasinoStepPalCycles(void)
         }
     }
 }
-#else
-/* 95.24%: the rows left are the order of the count read against the
-   remainder test and the registers of the removal loop. */
-INCLUDE_ASM("casino/nonmatchings/gfx/palanim", CasinoStepPalCycles);
-#endif
