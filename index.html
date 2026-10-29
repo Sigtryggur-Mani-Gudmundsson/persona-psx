@@ -2772,7 +2772,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 </script>
 <script>
 (() => {
-  const revision = "95d61308d5100e333ec0651621bf6de70321f4ea519d9ad893b73872f38ac934";
+  const revision = "f48d4eac8898fd7968007ed7e7e595f6ac13458c83f073e23b6cc446e464a6a4";
   async function checkPublishedVersion() {
     if (document.hidden) return;
     try {
@@ -2816,32 +2816,43 @@ html&gt;body{padding:0}&lt;/style&gt;
 #persona-signal[data-feedback="wrong"]{background:#b91c1c;border-color:#fca5a5;color:white;box-shadow:0 0 0 7px #ef444440}
 #persona-signal[data-feedback="right"]{background:#15803d;border-color:#86efac;color:white;box-shadow:0 0 0 7px #22c55e40}
 #persona-signal-status{position:fixed;bottom:28px;left:76px;z-index:10000;background:#15232e;color:#eef6f3;border-radius:6px;font:14px/1.5 system-ui;padding:6px 10px;pointer-events:none;white-space:pre-line;max-width:260px}
-#persona-signal-status:empty{display:none}
+#persona-signal-status:empty{display:none}#persona-signal-status a{pointer-events:auto;color:#9be5bc}
 @media(max-width:600px){#persona-signal-status{bottom:116px;left:20px;max-width:calc(100vw - 60px)}}
 .persona-view-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #425462;border-radius:20px;padding:6px 11px;background:#15232e;color:#eef6f3;font:600 12px/1.3 system-ui;letter-spacing:.03em}
 .persona-view-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:#9be5bc}
 #persona-view-indicator{position:fixed;bottom:76px;left:20px;z-index:10000;pointer-events:none}
-body:has(#persona-backup[open]) #persona-view-indicator{display:none}
-#persona-backup{box-sizing:border-box;width:min(440px,calc(100vw - 40px));max-height:calc(100dvh - 40px);overflow:auto;padding:26px;border:1px solid #9e5c31;border-radius:16px;background:#492716;color:#fff1e5;font:14px/1.6 system-ui;box-shadow:0 16px 48px #180b0899;color-scheme:dark}
-#persona-backup::backdrop{background:#713b1e}#persona-backup h2{margin:16px 0 12px;font-size:24px}#persona-backup a{color:#ffd09b}#persona-backup button{float:right;background:#351b10;color:#fff1e5;border:1px solid #9e5c31;border-radius:6px;padding:5px 10px;cursor:pointer}
-#persona-backup .persona-view-badge{background:#351b10;border-color:#9e5c31;color:#ffd09b}#persona-backup .persona-view-badge::before{background:#efab68}
-#persona-backup a:focus-visible,#persona-backup button:focus-visible{outline:3px solid #ffd09b;outline-offset:3px}
+#persona-private-bar[hidden]{display:none}
+#persona-private-bar{position:relative;z-index:10001;flex:none;margin:-16px -16px 16px;box-sizing:border-box;min-height:72px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:#492716;border-bottom:1px solid #a6673c;color:#fff1e5;font:14px/1.5 system-ui}
+#persona-private-bar .persona-view-badge{background:#351b10;border-color:#a6673c;color:#ffd09b}#persona-private-bar .persona-view-badge::before{background:#efab68}
+#persona-private-bar small{display:block;margin-top:4px;color:#f0d0b8;font-size:12px}
+#persona-private-actions{display:flex;align-items:center;gap:16px;flex-shrink:0}
+#persona-private-bar a{color:#ffd09b}#persona-private-lock{background:#351b10;color:#fff1e5;border:1px solid #b77745;border-radius:7px;padding:9px 12px;cursor:pointer;font:600 13px system-ui}
+#persona-private-bar a:focus-visible,#persona-private-lock:focus-visible{outline:3px solid #ffd09b;outline-offset:3px}
+html.persona-private-view,html.persona-private-view body{background:#713b1e!important}
+html.persona-private-view body{display:flex;flex-direction:column}
+html.persona-private-view #codex-visualization{flex:1;min-height:0;height:0!important}
+html.persona-private-view #persona-view-indicator,html.persona-private-view #persona-signal,html.persona-private-view #persona-signal-status{display:none}
+html.persona-private-view #persona-news-button{top:auto;bottom:20px;background:#492716;border-color:#b77745;color:#fff1e5}
+html.persona-private-view #persona-news-panel{top:auto;bottom:78px;background:#492716;border-color:#b77745;color:#fff1e5}
+html.persona-private-view #persona-news-panel a{color:#ffd09b}html.persona-private-view #persona-news-panel p,html.persona-private-view #persona-news-panel time{color:#f0d0b8}html.persona-private-view #persona-news-panel li{border-color:#a6673c}
+@media(max-width:600px){#persona-private-bar{min-height:108px;padding:10px 16px;align-items:flex-start;gap:8px;flex-direction:column}#persona-private-actions{gap:20px}html.persona-private-view #persona-news-button,html.persona-private-view #persona-news-panel{top:auto}}
 </style>
 <span id="persona-view-indicator" class="persona-view-badge">Public view</span>
 <button id="persona-signal" type="button" aria-label="Signal — tap or hold" title="Quick tap for a dot; hold until a dash appears, then release">·</button>
 <span id="persona-signal-status" role="status" aria-live="polite" aria-atomic="true"></span>
-<dialog id="persona-backup" aria-labelledby="persona-backup-title">
-<button type="button" id="persona-backup-close" aria-label="Close backup status">×</button>
-<span class="persona-view-badge">Private backup</span>
-<h2 id="persona-backup-title">Backup status</h2>
-<p>The verified field-input patch has been saved in the private backup. Open its latest snapshot and commit history on GitHub to check the details.</p>
-<p><a href="https://github.com/Sigtryggur-Mani-Gudmundsson/persona-psx-backup/tree/verified-field-input-20261029" target="_blank" rel="noopener noreferrer">Open backup status ↗</a></p>
-<small>GitHub sign-in and repository access are required. This hidden shortcut is an Easter egg, not an access lock.</small>
-</dialog>
+<section id="persona-private-bar" aria-label="Private dashboard view" hidden>
+<div><span class="persona-view-badge">Private view · unlocked</span><small>Mirrors the public snapshot. GitHub sign-in protects the private repository.</small></div>
+<div id="persona-private-actions"><a href="https://github.com/Sigtryggur-Mani-Gudmundsson/persona-psx-backup/tree/verified-field-input-20261029" target="_blank" rel="noopener noreferrer">Private repository ↗</a><button id="persona-private-lock" type="button">Lock &amp; return</button></div>
+</section>
 <script id="persona-morse-script">
 (() => {
- const button=document.getElementById('persona-signal'),panel=document.getElementById('persona-backup');
+ const button=document.getElementById('persona-signal'),frame=document.getElementById('codex-visualization');
+ const bar=document.getElementById('persona-private-bar'),lock=document.getElementById('persona-private-lock');
  const status=document.getElementById('persona-signal-status');
+ if(!frame){button.hidden=true;const link=document.createElement('a');link.href='https://sigtryggur-mani-gudmundsson.github.io/persona-psx/';link.textContent='Open the full dashboard';status.append(link);return;}
+ const publicPage=frame.srcdoc;
+ const privateTheme='<style id="persona-private-theme">:root{--background:#713b1e!important;--color-background-primary:#713b1e!important;--foreground:#fff1e5!important;--color-text-primary:#fff1e5!important;--muted:#8b532f!important;--muted-foreground:#f0d0b8!important;--border:#b77745!important;--green:#55e494!important;--orange:#ffbd70!important;color-scheme:dark}html,body{background:#713b1e!important;color:#fff1e5!important}a{color:#ffd09b!important}</style>';
+ function unlock(){document.documentElement.classList.add('persona-private-view');bar.hidden=false;frame.srcdoc=publicPage.replace('</head>',privateTheme+'</head>');lock.focus();}
  const code='...---...',dashMs=450;
  let sequence='',down=null,pointer=null,idleTimer,feedbackTimer,holdTimer,complete=false;
  function clearFeedback(){clearTimeout(feedbackTimer);delete button.dataset.feedback;}
@@ -2855,7 +2866,7 @@ body:has(#persona-backup[open]) #persona-view-indicator{display:none}
   if(complete)return;
   clearTimeout(idleTimer);clearFeedback();sequence+=symbol;
   if(!code.startsWith(sequence)){wrong();return;}
-  if(sequence===code){reset();complete=true;flash('right','Unlocked');setTimeout(()=>{panel.showModal();document.getElementById('persona-backup-close').focus();},450);}
+  if(sequence===code){reset();complete=true;flash('right','Unlocked');setTimeout(unlock,450);}
   else{progress('Quick tap ·  /  hold for —');expireLater();}
  }
  function begin(){
@@ -2875,8 +2886,7 @@ body:has(#persona-backup[open]) #persona-view-indicator{display:none}
  });
  button.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();end();}});
  button.addEventListener('blur',()=>{release();if(sequence)expireLater();});
- document.getElementById('persona-backup-close').addEventListener('click',()=>panel.close());
- panel.addEventListener('close',()=>{complete=false;button.focus();});
+ lock.addEventListener('click',()=>{document.documentElement.classList.remove('persona-private-view');bar.hidden=true;frame.srcdoc=publicPage;complete=false;reset();clearFeedback();status.textContent='';button.focus();});
 })();
 </script>
 
