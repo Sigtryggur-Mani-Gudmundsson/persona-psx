@@ -328,7 +328,7 @@ segments:
       - [0x33168, c, game/mapmodel]
       - [0x333DC, c, game/mapmodelcolor]
       - [0x335C4, c, game/mapmodel2]
-      - [0x33848, asm, s2d_after_mapmodel2]
+      - [0x33848, c, game/mapmodelbind]
       - [0x33934, c, gfx/drawmodeclear]
       - [0x3395C, asm, s2d_drawmodequeue]
       - [0x33A1C, c, gfx/drawmodeset]
