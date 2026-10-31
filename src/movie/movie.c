@@ -30,6 +30,14 @@ extern void StrOutCallback(void);
 #define MAP_UNK4  (*(u_char *)0x801F5354)
 #define MAP_ROOM  (*(u_char *)0x801F5355)
 
+/* g_movie_next_state, written as a structure member. As a plain scalar,
+   cc1's aliasing lets the scheduler lift the g_movie_after loads above the
+   store, which the image does not do. */
+typedef struct {
+    int state;
+} MovieNext;
+#define NEXT_STATE (((MovieNext *)&g_movie_next_state)->state)
+
 /* Defined here: the unit reaches them gp-relative. */
 u_char g_movie_no;
 u_char g_movie_first;
@@ -102,14 +110,21 @@ int main(void)
     StopCallback();
 }
 
-/* Plays g_movie_no to its end, then sets where the game resumes. */
-#ifdef NON_MATCHING
+/* Plays g_movie_no to its end, then sets where the game resumes.
+ *
+ * The image tests g_movie_again twice off one load and reloads g_movie_no
+ * for the tail; the masked int copy and the u_short copy below reproduce
+ * both. The tail stays inside the for (;;): that is what hoists the
+ * 0x801F5350/0x801F5355 addresses into s1/s2.
+ */
 int MoviePlay(void)
 {
-    CdlFILE          file;
-    RECT             rect;
-    char             name[] = "\\STR0\\MV00.STR;1";
-    u_char           unused[0x74];
+    CdlFILE file;
+    RECT    rect;
+    char    name[] = "\\STR0\\MV00.STR;1";
+    u_char  unused[0x74];
+    int     again;
+    u_short no;
 
     SetDispMask(0);
     CdControlB(CdlPause, 0, 0);
@@ -160,43 +175,46 @@ int MoviePlay(void)
             ResetGraph(1);
             GsSwapDispBuff();
         } while (g_movie_frame < g_movie_frames[g_movie_no] - 3 && g_movie_end != 1);
-        if (g_movie_again) {
+
+        /* The mask keeps cse from proving the second test dead; combine
+           drops it again, leaving two bnez on the one load. */
+        again = g_movie_again;
+        if (again & 0xFFFF) {
             continue;
         }
-        if (g_movie_again) {
+        if (again) {
             return 1;
         }
-    if (g_movie_no >= 0xC) {
-        g_movie_next_state = g_movie_after[g_movie_no - 0xC].state;
-        MAP_ID   = g_movie_after[g_movie_no - 0xC].map;
-        MAP_POS_X = g_movie_after[g_movie_no - 0xC].x;
-        MAP_POS_Y = g_movie_after[g_movie_no - 0xC].y;
-        MAP_UNK4  = g_movie_after[g_movie_no - 0xC].map_unk4;
-        MAP_ROOM     = g_movie_after[g_movie_no - 0xC].room;
-        if (g_movie_no == 0xC) {
-            if (EVENT_FLAG(0x53)) {
-                MAP_ID = 0xA0;
-                MAP_ROOM   = 1;
-            }
-        } else if (g_movie_no == 0x25) {
-            if (EVENT_FLAG(0x169)) {
-                MAP_ID = 0xD8;
-                MAP_ROOM   = 0;
+
+        no = g_movie_no;
+        if (no >= 0xC) {
+            NEXT_STATE = g_movie_after[no - 0xC].state;
+            MAP_ID    = g_movie_after[no - 0xC].map;
+            MAP_POS_X = g_movie_after[no - 0xC].x;
+            MAP_POS_Y = g_movie_after[no - 0xC].y;
+            MAP_UNK4  = g_movie_after[no - 0xC].map_unk4;
+            MAP_ROOM  = g_movie_after[no - 0xC].room;
+            if (no == 0xC) {
+                if (EVENT_FLAG(0x53)) {
+                    MAP_ID   = 0xA0;
+                    MAP_ROOM = 1;
+                }
+            } else if (no == 0x25) {
+                if (EVENT_FLAG(0x169)) {
+                    MAP_ID   = 0xD8;
+                    MAP_ROOM = 0;
+                }
+            } else {
+                return 0;
             }
         } else {
-            return 0;
+            NEXT_STATE = 3;
+            MAP_ID   = 0x10A;
+            MAP_ROOM = 2;
         }
-    } else {
-        g_movie_next_state = 3;
-        MAP_ID   = 0x10A;
-        MAP_ROOM = 2;
-    }
-    return 0;
+        return 0;
     }
 }
-#else
-INCLUDE_ASM("movie/nonmatchings/movie", MoviePlay);
-#endif
 
 /* The MDEC's end-of-slice callback: loads the slice just decoded, then
    either starts the next one or, at the end of the area, flips the areas

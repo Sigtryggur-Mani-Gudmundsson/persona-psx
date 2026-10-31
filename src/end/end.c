@@ -260,6 +260,10 @@ u_char g_end_logo_v[] = { 0x0, 0x30, 0x0, 0x60, 0x30, 0x0, 0x0, 0x0 };
 u_char g_end_logo_w[] = { 0x68, 0x68, 0x60, 0xA0, 0x20, 0x0, 0x0, 0x0 };
 u_char g_end_logo_h[] = { 0x30, 0x30, 0x30, 0x28, 0x18, 0x0, 0x0, 0x0 };
 
+/* NON_MATCHING: this C compiles to the image's instructions (cc1's `s8` is
+   splat's `fp`, the same register). It stays behind INCLUDE_ASM only because
+   its jump table shares end_rodata with EndPlayMovie's file name: that
+   segment can only become the unit's .rodata once EndPlayMovie matches too. */
 #ifdef NON_MATCHING
 /* Runs the ending's credits script to its end and returns to the resident
    with the scene it goes on to. */
@@ -760,6 +764,14 @@ void EndDraw(void)
     GsDrawOt(&g_end_ot[g_end_buf]);
 }
 
+/* NON_MATCHING: 6 instructions off, all at the first StrPutHex. The image
+   stores the three g_dec fields, then sets a0, a2 and a1 (a1 in the jal's
+   delay slot); here both sched passes lift the a1 and a0 set-up above the
+   stores, which they do not depend on. Ruled out: volatile and literal
+   addresses, struct reads, extra blocks and loops, inline helpers, argument
+   temporaries in every order, and the permuter. An empty asm volatile before
+   the call keeps the stores first, so the original likely had a block
+   boundary there. */
 #ifdef NON_MATCHING
 /* Plays g_end_movie. 0 when it ran to its end, 1 when the stream did. */
 int EndPlayMovie(void)
