@@ -28,14 +28,14 @@
    absent has no effect at all, and spelllines.c draws such a spell greyed. */
 typedef struct {
     /* 0x0 */ BtlObj *(*start)();
-    /* 0x4 */ void (*step)();
+    /* 0x4 */ void (*step)(BtlObj *o);
     /* 0x8 */ void (*finish)();
     /* 0xC */ int  group;
 } BtlSpellFx;                          /* 16 bytes */
 
 extern BtlSpellFx g_btl_spell_fx[];
 
-/* What the handlers are told, in place of arguments. */
+/* Shared move context, in addition to any per-record arguments. */
 extern u_char g_btl_fx_move;
 extern u_char g_btl_fx_target;
 
@@ -247,37 +247,36 @@ extern BtlObj *BtlFxStartSweep(void);
    the effect ends. Neither is reached anywhere but through the table, so each
    carries the lowest move id that reaches it, the way the start column does.
    Twenty-seven step handlers and five finish handlers cover all 247 moves;
-   BtlFxStep01 alone covers 138 of them and BtlFxFinish01 88. They are declared
-   without a prototype because that is how the table reaches them - a step
-   handler is handed the record it is stepping, and BtlFxObjTick calls it
-   through a pointer that says nothing about arguments. */
-extern void BtlFxStep01();
-extern void BtlFxStep09();
-extern void BtlFxStep12();
-extern void BtlFxStep27();
-extern void BtlFxStep2A();
-extern void BtlFxStep2F();
-extern void BtlFxStep33();
-extern void BtlFxStep36();
-extern void BtlFxStep38();
-extern void BtlFxStep3A();
-extern void BtlFxStep42();
-extern void BtlFxStep44();
-extern void BtlFxStep4C();
-extern void BtlFxStep4F();
-extern void BtlFxStep5B();
-extern void BtlFxStep6D();
-extern void BtlFxStep6E();
-extern void BtlFxStep72();
-extern void BtlFxStep84();
-extern void BtlFxStep86();
-extern void BtlFxStep87();
-extern void BtlFxStep88();
-extern void BtlFxStepA0();
-extern void BtlFxStepA2();
-extern void BtlFxStepDB();
-extern void BtlFxStepE5();
-extern void BtlFxStepE8();
+   BtlFxStep01 alone covers 138 of them and BtlFxFinish01 88. Each step handler
+   takes the object record explicitly, including when called through the
+   table by BtlFxObjTick. */
+extern void BtlFxStep01(BtlObj *o);
+extern void BtlFxStep09(BtlObj *o);
+extern void BtlFxStep12(BtlObj *o);
+extern void BtlFxStep27(BtlObj *o);
+extern void BtlFxStep2A(BtlObj *o);
+extern void BtlFxStep2F(BtlObj *o);
+extern void BtlFxStep33(BtlObj *o);
+extern void BtlFxStep36(BtlObj *o);
+extern void BtlFxStep38(BtlObj *o);
+extern void BtlFxStep3A(BtlObj *o);
+extern void BtlFxStep42(BtlObj *o);
+extern void BtlFxStep44(BtlObj *o);
+extern void BtlFxStep4C(BtlObj *o);
+extern void BtlFxStep4F(BtlObj *o);
+extern void BtlFxStep5B(BtlObj *o);
+extern void BtlFxStep6D(BtlObj *o);
+extern void BtlFxStep6E(BtlObj *o);
+extern void BtlFxStep72(BtlObj *o);
+extern void BtlFxStep84(BtlObj *o);
+extern void BtlFxStep86(BtlObj *o);
+extern void BtlFxStep87(BtlObj *o);
+extern void BtlFxStep88(BtlObj *o);
+extern void BtlFxStepA0(BtlObj *o);
+extern void BtlFxStepA2(BtlObj *o);
+extern void BtlFxStepDB(BtlObj *o);
+extern void BtlFxStepE5(BtlObj *o);
+extern void BtlFxStepE8(BtlObj *o);
 
 extern void BtlFxFinish01();
 extern void BtlFxFinish37();

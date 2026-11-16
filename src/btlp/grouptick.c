@@ -8,8 +8,8 @@
  * over: the record's `motion` picks a handler out of the group's own table and
  * the record is put back to phase nought where the table has nothing.
  *
- * The handlers take no arguments - they are reached through the table, and the
- * record is already in the argument register when the call is made.
+ * The handlers take the record pointer. The original calls through the tables
+ * leave it in the argument register; C must pass it explicitly.
  *
  * The two differences are worth naming. A summoned Persona is lifted: its
  * height is g_btl_persona_hover read a quarter as fast as the record ages, so
@@ -23,14 +23,10 @@
 #include <persona/btlp/object.h>
 #include <persona/btlp/spellfx.h>
 
-/* Still assembly: what an effect record that follows the negotiation gets
-   instead of the move's own step. */
-extern void BtlTalkFxObjTick();
-
-/* The four groups' motion tables. Nothing calls an entry by hand. */
-extern void (*g_btl_persona_motion[])();
-extern void (*g_btl_enemy_motion[])();
-extern void (*g_btl_member_motion[])();
+/* The three motion tables. Nothing calls an entry by hand. */
+extern void (*g_btl_persona_motion[])(BtlObj *o);
+extern void (*g_btl_enemy_motion[])(BtlObj *o);
+extern void (*g_btl_member_motion[])(BtlObj *o);
 
 /* How far a summoned Persona floats, one entry per four frames of its age. */
 extern long g_btl_persona_hover[];
@@ -49,7 +45,7 @@ extern long g_btl_persona_hover[];
 void BtlTickEffects(BtlObj *o)
 {
     if ((o->attr & BTL_OBJ_ATTR_2000) != 0) {
-        BtlTalkFxObjTick();
+        BtlTalkFxObjTick(o);
     } else {
         BtlFxObjTick(o);
     }
@@ -57,12 +53,12 @@ void BtlTickEffects(BtlObj *o)
 
 void BtlTickPersona(BtlObj *o)
 {
-    void (*motion)();
+    void (*motion)(BtlObj *o);
     short n;
 
     motion = g_btl_persona_motion[o->motion];
     if (motion != 0) {
-        motion();
+        motion(o);
     } else {
         o->phase = 0;
     }
@@ -88,11 +84,11 @@ void BtlTickPersona(BtlObj *o)
 
 void BtlTickEnemy(BtlObj *o)
 {
-    void (*motion)();
+    void (*motion)(BtlObj *o);
 
     motion = g_btl_enemy_motion[o->motion];
     if (motion != 0 && (o->attr & BTL_OBJ_HELD) == 0) {
-        motion();
+        motion(o);
     } else {
         o->phase = 0;
     }
@@ -100,11 +96,11 @@ void BtlTickEnemy(BtlObj *o)
 
 void BtlTickMember(BtlObj *o)
 {
-    void (*motion)();
+    void (*motion)(BtlObj *o);
 
     motion = g_btl_member_motion[o->motion];
     if (motion != 0 && (o->attr & BTL_OBJ_HELD) == 0) {
-        motion();
+        motion(o);
     } else {
         o->phase = 0;
     }

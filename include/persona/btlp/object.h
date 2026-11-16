@@ -354,6 +354,15 @@ extern SVECTOR g_btl_obj_quad[];
 extern void (*g_btl_obj_draw[])(BtlObj *o);
 extern void (*g_btl_obj_tick[])(BtlObj *obj);
 
+/* Effect group dispatch and its two record handlers. */
+extern void BtlTickEffects(BtlObj *obj);
+extern void BtlFxObjTick(BtlObj *obj);
+extern void BtlTalkFxObjTick(BtlObj *obj);
+
+extern void BtlTickPersona(BtlObj *obj);
+extern void BtlTickEnemy(BtlObj *obj);
+extern void BtlTickMember(BtlObj *obj);
+
 /* List edits. */
 extern int     BtlObjFree(BtlObj *obj);
 extern int     BtlObjMoveBefore(BtlObj *at, BtlObj *obj);

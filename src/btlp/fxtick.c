@@ -30,7 +30,7 @@
 
 void BtlFxObjTick(BtlObj *o)
 {
-    void (*step)();
+    void (*step)(BtlObj *o);
     /* The camera's third value is reached through its address rather than by
        name. Held here it costs a register the whole way through, which is
        what keeps the three reads of the rotation one behind the other: given
@@ -43,7 +43,7 @@ void BtlFxObjTick(BtlObj *o)
         step = g_btl_spell_fx[g_btl_fx_move].step;
         if (step != 0 && o->motion == FX_MOTION)
         {
-            step();
+            step(o);
         }
     }
     else
