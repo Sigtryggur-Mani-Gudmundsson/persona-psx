@@ -293,7 +293,7 @@ segments:
       - [0x27DCC, c, game/gridprompt]
       - [0x27F3C, c, game/gridblink]
       - [0x28130, c, game/lamptimeline]
-      - [0x2823C, asm, casino_after_lamptimeline]
+      - [0x2823C, c, game/layoutcodes]
       - [0x28344, c, game/glyphclass]
       - [0x28384, c, game/glyphcolumn]
       - [0x2847C, c, game/glyphrow]
@@ -372,7 +372,7 @@ segments:
       - [0x2F5B0, c, game/rewardseq]
       - [0x2F730, c, game/rewardaudio]
       - [0x2F7D4, c, game/noop_80093B74]
-      - [0x2F7DC, asm, casino_after_rewardaudio]
+      - [0x2F7DC, c, game/randomturn]
       - [0x2F86C, data, casino_data]
       - [0x43F9C, bss, casino_bss]
 
