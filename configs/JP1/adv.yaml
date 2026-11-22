@@ -124,7 +124,7 @@ segments:
       - [0xED8, .rodata, ui/facilitymisc]
       - [0x10BC, pad, adv_pad_10bc]
       - [0x10C0, .rodata, game/money]
-      - [0x113C, rodata, adv_rodata7c2]
+      - [0x113C, .rodata, game/script]
       - [0x1304, .rodata, game/actorplace]
       - [0x1348, pad, adv_pad_1348]
       - [0x134C, .rodata, game/stats]

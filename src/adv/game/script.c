@@ -268,9 +268,10 @@ extern u_char ActorsMoveStep(u_char actor);
 extern short  PersonaSlotsLast(void);
 extern void   PersonaFill(u_char p, u_char n);
 
+#define ADVCMD_PATH "\\ADV\\ADVCMD.BIN;1"
+
 void AdvScriptSpecial(u_char n);
 
-#ifdef NON_MATCHING
 int AdvRunScript(u_char *s)
 {
     MsgState *msg = g_msg;
@@ -285,7 +286,6 @@ int AdvRunScript(u_char *s)
     short    p;
     u_int    u;
     int      r;
-    short    q;
     int      f;
     u_char   e;
 
@@ -385,12 +385,15 @@ loop:
             goto jump;
         }
         break;
-    case 0x31:
+    case 0x31: {
+        u_char slot;
+
         /* A character joins, and takes up the Personas that are theirs. */
         b = 0;
-        a = CharFindFree();
-        PartyAdd(a);
-        CharJoin(a, s[2], g_chars[0].level);
+        slot = CharFindFree();
+        a = slot;
+        PartyAdd(slot);
+        CharJoin(slot, s[2], g_chars[0].level);
         c = 0;
         d = 0;
         PartyCompact();
@@ -411,6 +414,7 @@ loop:
         CharRecalcStats(a);
         g_money2 = keep;
         break;
+    }
     case 0x32:
 
         /* A character leaves: their equipment goes back to the bag. */
@@ -643,7 +647,8 @@ loop:
     case 0x4E:
         f = PersonaStockFindFree();
     full:
-        if (f == 0xFF) {
+        r = 0xFF;
+        if (f == r) {
             goto jump;
         }
         break;
@@ -700,15 +705,16 @@ loop:
         g_adv_actors[s[2]].script = U32(s + 4);
         break;
     case 0x59:
-        q = PersonaSlotsLast();
+        f = PersonaSlotsLast();
     count:
-        a = q + 1;
-        if (s[2] == a) {
+        r = s[2];
+        a = f + 1;
+        if (r == a) {
             goto jump;
         }
         break;
     case 0x5A:
-        q = PersonaStockCompact();
+        f = PersonaStockCompact();
         goto count;
     case 0x60:
         BgMapClearRow(0);
@@ -887,7 +893,7 @@ loop:
     case 0x80:
         AdvLoadBgm(s[2]);
         if (s[2] < 0x40) {
-            LoadFileToAddrAsync("\\ADV\\ADVCMD.BIN;1", (void *)0x80118000);
+            LoadFileToAddrAsync(ADVCMD_PATH, (void *)0x80118000);
             while (g_cd_busy != -1) {
                 AdvRunFrame();
             }
@@ -951,9 +957,6 @@ end:
     g_cam_actor = 0;
     return leave;
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/game/script", AdvRunScript);
-#endif
 
 /* The ADV command bar - two images out of ADVCMD.BIN, which stays loaded at
    0x80118000 - and the sprites that show it. */
@@ -972,7 +975,6 @@ extern u_long  g_bg_shown;
 extern u_char  g_kage_sprite[];
 extern u_char  g_fade_sprites;
 extern u_char  g_adv_loading;
-extern const char str_adv_advcmd2[];
 
 extern void AdvFadeDownBlocking(short step, short floor);
 extern void FadeBlackout(void);
@@ -1020,7 +1022,7 @@ void AdvScriptSpecial(u_char n)
     case SPECIAL_KAGE_END:
         AdvFadeDownBlocking(4, 0);
         g_adv_loading = 0;
-        LoadFileToAddrAsync(str_adv_advcmd2, (void *)ADVCMD_AT);
+        LoadFileToAddrAsync(ADVCMD_PATH, (void *)ADVCMD_AT);
         AdvPickEffect();
         AdvEffectSetupSlots();
         AdvRoomRebuild();
