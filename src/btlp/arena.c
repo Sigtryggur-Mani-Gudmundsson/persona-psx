@@ -69,50 +69,33 @@ extern SVECTOR   g_btl_arena_quad[];
 #define g_btl_arena_g (*(short *)0x800CCA14)
 #define g_btl_arena_b (*(short *)0x800CCA16)
 
-/* 95.14%. Written as the edges are, every coordinate worked out from the row
-   and the column. The image steps a copy of the row's top (s6) for the
-   second corner. Traced through loop.c 2026-09-26: that is two computations
-   of row*40-200 that cse cannot prove equal, both lifted out of the column
-   loop and merged by combine_givs in the row loop, the second left as a copy
-   in the column loop's preheader. The second corner's value is set at the
-   top of the column body so it lives long enough to be lifted (loop.c lifts
-   an insn only when threshold * uses * lifetime reaches the loop's insn
-   count, 134); the first is spelled (row - 5) * 40. That lifts both, gets
-   every rgb read and the per-round 0xFF000000 right, but the two givs end in
-   one register here (t8) with no copy, so the frame is still 0x30 against
-   0x38 and the registers shift by one.
-   The tail reads the fade off the rgb pointer (lh -2(s0)); here cse folds
-   rgb[-1] into the symbol. A struct {fade; rgb[3]; to[3];} view keeps it
-   register-relative but bases on the fade.
-   2026-10-01, traced in cse.c/loop.c: find_best_addr folds (plus rgb -2)
-   whenever cse knows rgb's constant. That holds for the array name, a pointer
-   set from it, or a do/while(0) or one-pass for around the calls. Only a base
-   cse cannot see keeps -2(s0), e.g. one set before a real loop label. A
-   (short *)0x800CCA12 base folds the arguments to li pairs; the image has
-   la. The s6 copy is the one strength_reduce emits for a giv that is not
-   replaceable (check_final_value). Here both row givs are "final_value
-   replaceable" and merge. Moving y, or a copy of it, into the row body did
-   not keep a copy either (91-93%).
-   The face, in the plane z = 0. It is the only one of the five put through
-   the GTE by hand rather than through RotAverageNclip4, and it is the one that
-   walks the arena's colour toward the scene's. */
-#ifdef NON_MATCHING
+/* The back face is the only plane projected by hand. After drawing it,
+   walk its RGB values toward the target colors using the preceding fade
+   halfword. */
+static __inline__ short ArenaBackCornerY(short y)
+{
+    return y;
+}
+
 void BtlDrawArenaBack(void)
 {
-    u_long *ot;
-    short  *rgb;
-    int     row;
-    int     col;
-    int     y;
+    u_long      *ot;
+    short       *rgb;
+    const short *scene_rgb;
+    int          row;
+    int          col;
+    int          y;
 
-    for (row = 0; row < ARENA_BACK_ROWS; row++) {
+    rgb = g_btl_arena_rgb;
+    row = 0;
+    for (;;) {
         for (col = 0; col < ARENA_BACK_COLS; col++) {
-            y = row * ARENA_STEP - ARENA_Y;
+            y = (row - ARENA_Y / ARENA_STEP) * ARENA_STEP;
             g_btl_arena_face[0].vx = col * ARENA_STEP - ARENA_X;
             g_btl_arena_face[0].vy = (row - ARENA_Y / ARENA_STEP) * ARENA_STEP;
             g_btl_arena_face[0].vz = 0;
             g_btl_arena_face[1].vx = col * ARENA_STEP - (ARENA_X - ARENA_STEP);
-            g_btl_arena_face[1].vy = y;
+            g_btl_arena_face[1].vy = ArenaBackCornerY(y);
             g_btl_arena_face[1].vz = 0;
             g_btl_arena_face[2].vx = col * ARENA_STEP - ARENA_X;
             g_btl_arena_face[2].vy = row * ARENA_STEP - (ARENA_Y - ARENA_STEP);
@@ -147,16 +130,18 @@ void BtlDrawArenaBack(void)
             addPrim(ot, g_btl_polyft4_next);
             g_btl_polyft4_next++;
         }
+        if (++row >= ARENA_BACK_ROWS) {
+            rgb = g_btl_arena_rgb;
+            break;
+        }
     }
 
-    rgb = g_btl_arena_rgb;
-    BtlApproach(&rgb[0], &rgb[3], rgb[-1]);
-    BtlApproach(&rgb[1], &rgb[4], rgb[-1]);
-    BtlApproach(&rgb[2], &rgb[5], rgb[-1]);
+    /* JP1 stores the scene colors immediately after the current arena colors. */
+    scene_rgb = (const short *)((u_long)rgb + 3 * sizeof(short));
+    BtlApproach(&rgb[0], &scene_rgb[0], *(short *)((u_long)g_btl_arena_rgb - sizeof(short)));
+    BtlApproach(&rgb[1], &scene_rgb[1], *(short *)((u_long)g_btl_arena_rgb - sizeof(short)));
+    BtlApproach(&rgb[2], &scene_rgb[2], *(short *)((u_long)g_btl_arena_rgb - sizeof(short)));
 }
-#else
-INCLUDE_ASM("btlp/nonmatchings/arena", BtlDrawArenaBack);
-#endif
 
 /* The right edge, standing in the plane x = 0x78 and running upwards. */
 void BtlDrawArenaRight(void)
