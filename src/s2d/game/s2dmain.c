@@ -77,21 +77,29 @@ void S2dFrameUnlocked(void)
     g_key_lock = 1;
 }
 
-#ifdef NON_MATCHING
 /* Starts a frame's drawing: the packet area for the buffer now being built
    (the map's, or the larger one `alt` asks for) and every ordering table
    of that side cleared. */
 void S2dBeginFrame(int alt)
 {
     int    j;
+    int    side;
+    u_long offset;
+    u_long origin;
     u_long base;
 
-    g_draw_side = GsGetActiveBuff();
+    side = GsGetActiveBuff();
+    g_draw_side = side;
+    offset = (u_long)side << 16;
     if (alt == 0) {
-        base = g_draw_side * 0x21000 + 0x800E0000;
+        offset = (u_long)side << 5;
+        offset += side;
+        offset <<= 12;
+        origin = 0x800E0000;
     } else {
-        base = g_draw_side * 0x10000 + 0x80100000;
+        origin = 0x80100000;
     }
+    base = offset + origin;
     g_s2d_workbase = base;
     GsSetWorkBase((PACKET *)base);
     GsClearOt(0, 0, &g_ot_back[g_draw_side]);
@@ -102,11 +110,6 @@ void S2dBeginFrame(int alt)
     }
     GsClearOt(0, 0, &g_ot_front[g_draw_side]);
 }
-#else
-/* 97%: the image keeps the active buffer in v0 and fills the branch slot
-   with the shift; this build copies it out first. */
-INCLUDE_ASM("s2d/nonmatchings/game/s2dmain", S2dBeginFrame);
-#endif
 
 void S2dLoad266B(void)
 {
