@@ -233,7 +233,7 @@ segments:
       - [0x20C24, c, game/cardpalette]
       - [0x20CF0, c, game/reelrankpalette]
       - [0x20DAC, c, game/buildreels]
-      - [0x21054, asm, casino_after_buildreels]
+      - [0x21054, c, game/reelroundinit]
       - [0x21300, c, game/reelbetinput]
       - [0x214D4, c, game/betlamps_alt]
       - [0x21580, c, game/reelrange]
