@@ -180,3 +180,10 @@ rom:0x2FA4 reloc:MIPS_HI16 symbol:g_image_queue addend:0x6
 rom:0x2FAC reloc:MIPS_LO16 symbol:g_image_queue addend:0x6
 rom:0x2FB0 reloc:MIPS_HI16 symbol:g_image_queue addend:0xA
 rom:0x2FB8 reloc:MIPS_LO16 symbol:g_image_queue addend:0xA
+
+// RingScratch uses literal scratchpad addresses. The two +4 increments step
+// over DVECTORs. The other additions point into the vertex array.
+rom:0x32730 reloc:MIPS_NONE symbol:D_1F800004
+rom:0x327A4 reloc:MIPS_NONE symbol:D_1F800004
+rom:0x327E8 reloc:MIPS_NONE symbol:D_1F80001C
+rom:0x32808 reloc:MIPS_NONE symbol:D_1F800022

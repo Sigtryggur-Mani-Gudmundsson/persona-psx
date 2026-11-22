@@ -207,3 +207,29 @@ rom:0x32768 reloc:MIPS_NONE symbol:D_801F2B38
 rom:0x32770 reloc:MIPS_NONE symbol:D_801F2B38
 rom:0x3277C reloc:MIPS_NONE symbol:D_801F2B38
 rom:0x32784 reloc:MIPS_NONE symbol:D_801F2B38
+
+// ImageCellsInit writes the picture cells through an indexed literal address.
+rom:0x1F25C reloc:MIPS_NONE symbol:D_800E964D
+rom:0x1F264 reloc:MIPS_NONE symbol:D_800E964D
+rom:0x1F268 reloc:MIPS_NONE symbol:D_800E964E
+rom:0x1F270 reloc:MIPS_NONE symbol:D_800E964E
+rom:0x1F274 reloc:MIPS_NONE symbol:D_800E9650
+rom:0x1F27C reloc:MIPS_NONE symbol:D_800E9650
+rom:0x1F298 reloc:MIPS_NONE symbol:D_800E9652
+rom:0x1F2A0 reloc:MIPS_NONE symbol:D_800E9652
+rom:0x1F308 reloc:MIPS_NONE symbol:D_800E964D
+rom:0x1F310 reloc:MIPS_NONE symbol:D_800E964D
+rom:0x1F314 reloc:MIPS_NONE symbol:D_800E964E
+rom:0x1F31C reloc:MIPS_NONE symbol:D_800E964E
+rom:0x1F320 reloc:MIPS_NONE symbol:D_800E9650
+rom:0x1F328 reloc:MIPS_NONE symbol:D_800E9650
+rom:0x1F344 reloc:MIPS_NONE symbol:D_800E9652
+rom:0x1F34C reloc:MIPS_NONE symbol:D_800E9652
+rom:0x1F3B0 reloc:MIPS_NONE symbol:D_800E964E
+rom:0x1F3B8 reloc:MIPS_NONE symbol:D_800E964E
+rom:0x1F3BC reloc:MIPS_NONE symbol:D_800E9650
+rom:0x1F3C4 reloc:MIPS_NONE symbol:D_800E9650
+rom:0x1F3F4 reloc:MIPS_NONE symbol:D_800E964D
+rom:0x1F3FC reloc:MIPS_NONE symbol:D_800E964D
+rom:0x1F418 reloc:MIPS_NONE symbol:D_800E9652
+rom:0x1F420 reloc:MIPS_NONE symbol:D_800E9652

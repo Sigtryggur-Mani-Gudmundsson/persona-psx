@@ -13,11 +13,11 @@ The output region contains two draw modes, two backdrops and two banks of
 the original point conversion. Point traversal and advancing the pointer
 after the copy reproduce the compiler's schedule without assembly patches.
 
-The complete linked binary matches exactly. The object report remains at
-99.914894% because four scratch-memory HI16/LO16 operands use literal
-addresses in C and symbolic addresses in the reference assembly. Published
-progress retains that conservative score; this function is not counted as a
-100% object match.
+The complete linked binary matches exactly. Four immediate additions in the
+reference use literal offsets into PS1 scratch memory. Two advance a vector
+pointer by four bytes. The other two form pointers at offsets 0x1C and 0x22.
+Representing those offsets as literals reproduces all 940 bytes of the
+compiled C object.
 
 7,680 native fixtures cover both buffers, positive and negative frame values,
 three bounded trigonometry stubs, center-coordinate boundaries, ring closure,
