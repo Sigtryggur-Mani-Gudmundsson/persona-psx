@@ -40,9 +40,6 @@ extern void   ShopBuyListDraw(void);
 extern void   DrawItemRow(short n, short *dst);
 extern short  ItemsListShopSell(void);
 
-/* 99.8%: the row loop's counter and row pointer take s1/s2 the other way
-   round in the image. */
-#ifdef NON_MATCHING
 void ShopBuyOpen(void)
 {
     int      i;
@@ -78,14 +75,14 @@ void ShopBuyOpen(void)
     TileMapFillRect(AT(g_tilemap2, 11, 16), 0, 9, 1, MAP_W);
     TileMapFillRect(AT(g_tilemap2, 13, 16), 0, 9, 1, MAP_W);
     *AT(g_tilemap2, 11, 15) = 0xD0;
-    TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 11, 24), GLYPH_DIGIT0,
-                       FormatDecimal(g_shop_prices[k], g_hud_digits, 9));
-    TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 13, 10), GLYPH_DIGIT0,
-                       FormatDecimal(ShopHave(*item), g_hud_digits, 2));
+    i = FormatDecimal(g_shop_prices[k], g_hud_digits, 9);
+    TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 11, 24), GLYPH_DIGIT0, i);
+    i = FormatDecimal(ShopHave(*item), g_hud_digits, 2);
+    TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 13, 10), GLYPH_DIGIT0, i);
     *AT(g_tilemap2, 13, 8) = 0xCE;
     *AT(g_tilemap2, 13, 15) = 0xD0;
-    TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 13, 24), GLYPH_DIGIT0,
-                       FormatDecimal(g_money, g_hud_digits, 9));
+    i = FormatDecimal(g_money, g_hud_digits, 9);
+    TileMapWriteRowRev(g_hud_digits, AT(g_tilemap2, 13, 24), GLYPH_DIGIT0, i);
     TileMapWriteRow(D_800BA640, AT(g_tilemap2, 13, 0), 0, 7);
     SlotClearAll();
     SlotClear(0x2F);
@@ -114,9 +111,6 @@ void ShopBuyOpen(void)
     ShopBuyListDraw();
     g_map_scroll_y = g_item_top * 12;
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/shoppages", ShopBuyOpen);
-#endif
 
 void ShopSellOpen(void)
 {
