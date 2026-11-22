@@ -320,7 +320,7 @@ segments:
       - [0x32564, c, game/mapdrawmodes]
       - [0x32698, c, game/mapring]
       - [0x32A44, c, game/copywords]
-      - [0x32A6C, asm, s2d_after_copywords]
+      - [0x32A6C, c, game/wavelines]
       - [0x32E34, c, game/mapfrontdraw]
       - [0x32EE8, c, game/playtime]
       # The disc loads: the map's sound, scene data and models, the prefetches.
