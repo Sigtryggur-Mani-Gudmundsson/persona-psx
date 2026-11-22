@@ -1,30 +1,71 @@
 /* Persona 1 (JP) - one font glyph into VRAM.
  *   DNG 0x800770EC   ADV 0x80067924   S2D 0x80067114
  *
- * The message window draws text one glyph at a time: the 1bpp bitmap is
- * expanded into a 4bpp staging cell and queued as a 16x16 upload. The glyph
- * goes down twice - first as a shadow in colour 1, a row lower and two pixels
- * right, then itself in colour 2 on top of it.
+ * Expand the 1bpp glyph into a 4bpp staging cell, then queue a 16x16
+ * upload. Colour 1 draws the shadow a row down and two pixels right.
+ * Colour 2 draws the glyph on top.
  */
 #include <decomp/types.h>
-#include <decomp/include_asm.h>
 #include <persona/common/font.h>
 #include <persona/common/imageanim.h>
 
-/* Byte j of row i of the glyph. */
-#define FONT(i, j) src[i][j]
+#define PIXELS(buf, row, pair) ((u_char *)((row) * 8 + (u_long)(buf)) + (pair) * 4)
 
-/* 82.81%: gcc expands each store's address before its value, so the buffer
-   row is hoisted ahead of the font row; the original has them the other way
-   round. A temporary for the value fixes the order but narrows the sum, and
-   the adds turn into ors. */
-#ifdef NON_MATCHING
+static inline int ShadowPair0(int bits)
+{
+    u_int high = bits & 0x40;
+    u_int low = bits;
+
+    return (low >> 7) + (high >> 2);
+}
+
+static inline int ShadowPair1(int bits)
+{
+    u_int high = bits & 0x10;
+    u_int low = bits & 0x20;
+
+    return high + (low >> 5);
+}
+
+static inline int ShadowPair2(int bits)
+{
+    u_int high = bits & 0x04;
+    u_int low = bits & 0x08;
+
+    return (low >> 3) + (high << 2);
+}
+
+static inline int ShadowPair3(int bits)
+{
+    u_int high = bits & 0x01;
+    u_int low = bits & 0x02;
+
+    return (low >> 1) + (high << 4);
+}
+
+static inline int GlyphPair2(int bits)
+{
+    u_int high = bits & 0x04;
+    u_int low = bits & 0x08;
+
+    return (low >> 2) + (high << 3);
+}
+
+static inline int GlyphPair3(int bits)
+{
+    u_int high = bits & 0x01;
+    u_int low = bits & 0x02;
+
+    return low + (high << 5);
+}
+
 void FontUploadGlyph(short x, short y, u_short glyph)
 {
     u_char (*src)[2];
     u_char (*buf)[8];
-    u_char  i;
-    u_char  j;
+    u_char i;
+    u_char j;
+    u_int pixel, low, high;
 
     src = (u_char (*)[2])(g_font_bits + glyph * GLYPH_BYTES);
     buf = (u_char (*)[8])g_glyph_buf;
@@ -32,23 +73,48 @@ void FontUploadGlyph(short x, short y, u_short glyph)
         buf[0][i] = 0;
     }
 
-    /* The shadow: written outright, one row down and one byte right. */
+    /* The shift carries across row boundaries in the work area.
+       The last shadow byte follows the 16 upload rows. */
     for (i = 0; i < 15; i++) {
         for (j = 0; j < 2; j++) {
-            buf[i][j * 4 + 9] = ((FONT(i, j) & 0x40) >> 2) + (FONT(i, j) >> 7);
-            buf[i][j * 4 + 10] = (FONT(i, j) & 0x10) + ((FONT(i, j) & 0x20) >> 5);
-            buf[i][j * 4 + 11] = ((FONT(i, j) & 0x4) << 2) + ((FONT(i, j) & 0x8) >> 3);
-            buf[i][j * 4 + 12] = ((FONT(i, j) & 0x2) >> 1) + ((FONT(i, j) & 0x1) << 4);
+            PIXELS(buf, i, j)[9] = ShadowPair0(src[i][j]);
+            PIXELS(buf, i, j)[10] = ShadowPair1(src[i][j]);
+            PIXELS(buf, i, j)[11] = ShadowPair2(src[i][j]);
+            PIXELS(buf, i, j)[12] = ShadowPair3(src[i][j]);
         }
     }
 
-    /* The glyph itself, over it. */
     for (i = 0; i < 16; i++) {
         for (j = 0; j < 2; j++) {
-            buf[i][j * 4 + 0] |= ((FONT(i, j) & 0x40) >> 1) + ((FONT(i, j) & 0x80) >> 6);
-            buf[i][j * 4 + 1] |= ((FONT(i, j) & 0x10) << 1) + ((FONT(i, j) & 0x20) >> 4);
-            buf[i][j * 4 + 2] |= ((FONT(i, j) & 0x4) << 3) + ((FONT(i, j) & 0x8) >> 2);
-            buf[i][j * 4 + 3] |= (FONT(i, j) & 0x2) + ((FONT(i, j) & 0x1) << 5);
+            u_char *source = (u_char *)(i * 2 + (u_long)src) + j;
+            u_int bits;
+
+            /* The first two pairs reuse the same temporaries for the
+               staged glyph bits and the existing shadow byte. */
+            bits = *source;
+            pixel = bits & 0x40;
+            low = bits & 0x80;
+            low >>= 6;
+            high = pixel >> 1;
+            pixel = PIXELS(buf, i, j)[0];
+            low += high;
+            pixel |= low;
+            PIXELS(buf, i, j)[0] = pixel;
+
+            bits = *source;
+            high = bits & 0x10;
+            bits &= 0x20;
+            bits >>= 4;
+            high <<= 1;
+            pixel = PIXELS(buf, i, j)[1];
+            bits += high;
+            pixel |= bits;
+            PIXELS(buf, i, j)[1] = pixel;
+
+            bits = *source;
+            PIXELS(buf, i, j)[2] = PIXELS(buf, i, j)[2] | GlyphPair2(bits);
+            bits = *source;
+            PIXELS(buf, i, j)[3] = PIXELS(buf, i, j)[3] | GlyphPair3(bits);
         }
     }
 
@@ -59,4 +125,3 @@ void FontUploadGlyph(short x, short y, u_short glyph)
     g_image_queue[g_image_queue_count].rect.h = 16;
     g_image_queue_count++;
 }
-#endif

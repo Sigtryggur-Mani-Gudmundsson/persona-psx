@@ -5,9 +5,3 @@
  * here would collapse back to one shared object.
  */
 #include "../../../common/gfx/fontglyph.c"
-
-/* Still asm here rather than in the shared source: splat reads this file,
-   not the one it includes, to learn which routines are not C yet. */
-#ifndef NON_MATCHING
-INCLUDE_ASM("s2d/nonmatchings/common/gfx/fontglyph", FontUploadGlyph);
-#endif
