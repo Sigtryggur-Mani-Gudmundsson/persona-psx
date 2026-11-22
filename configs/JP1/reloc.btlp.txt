@@ -327,3 +327,11 @@ rom:0x22E88 reloc:MIPS_NONE symbol:g_load_stage
 rom:0x22E8C reloc:MIPS_NONE symbol:g_load_stage
 rom:0x22E94 reloc:MIPS_NONE symbol:g_load_stage
 rom:0x22E98 reloc:MIPS_NONE symbol:g_load_stage
+
+// BtlFlagGet uses index-first absolute addresses in the shared work area.
+rom:0x3018 reloc:MIPS_NONE symbol:D_801F2A68
+rom:0x3020 reloc:MIPS_NONE symbol:D_801F2A68
+
+// BtlEventFlagTest uses index-first absolute addresses in the shared work area.
+rom:0x33378 reloc:MIPS_NONE symbol:D_801F29C8
+rom:0x33380 reloc:MIPS_NONE symbol:D_801F29C8

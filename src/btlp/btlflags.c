@@ -14,11 +14,8 @@
  * materialise it into a register, which is not a difference in the source -
  * it is only that a read-modify-write needs the address twice.
  *
- * The test scores 99.33% rather than 100% for the same reason
- * src/common/game/eventflag.c does: the bank is reached by address, so the
- * build emits no relocation where the disassembly invented a symbol. The two
- * words are identical - `addu $at,$a0,$at` is the literal form, and a linker
- * symbol would have assembled the operands the other way round.
+ * In the test, the index-first address addition identifies a literal
+ * bank address. The JP1 relocation overrides record the literal load.
  */
 #include <decomp/types.h>
 
