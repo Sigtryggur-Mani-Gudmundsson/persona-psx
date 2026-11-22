@@ -86,6 +86,8 @@ segments:
       # BtlPickItemFrom's tier table, which the C emits itself.
       - [0x38C, .rodata, drop]
       - [0x3D0, rodata, btlp_rodata2]
+      - [0x3E4, .rodata, talkscenegift]
+      - [0x408, rodata, btlp_rodata2a]
       - [0x41C, .rodata, leveltest]
       # BtlPlacePanel's push table, which the C emits itself.
       - [0x434, .rodata, panelplace]

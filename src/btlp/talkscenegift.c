@@ -15,7 +15,6 @@
  */
 #include <decomp/types.h>
 #include <rand.h>
-#include <decomp/include_asm.h>
 #include <persona/btlp/actor.h>
 #include <persona/btlp/model.h>
 #include <persona/btlp/object.h>
@@ -113,48 +112,39 @@ extern void  BtlSePlay(int slot, int seq);
    prototype sound.h carries. */
 extern void  BtlSoundClose(int slot);
 
-/* 99.82%. What moved it from 89.31%: the rewards are built in steps on their
-   own variables (money's amount never crosses a call and lives in a1, the
-   others in s0); the experience line inserts the amount, not nought; the bless
-   and hit arms reach members through a pointer; the hit arm's enemy is
-   &g_btl_actors[BTL_PARTY + target], so gcc rebases the same register onto the
-   member; each arm closes its own sound; the item index masks the whole roll;
-   and the first two item arms' tails are kept apart so cross-jumping leaves
-   both tests in place; the hit arm's locals are its own (scoped to the case),
-   which settles its registers. The 32 unused bytes of frame below the row
-   table are an unused local. Left: the heal and hit arms give the roll's copy
-   a2 where this gives it a1 (global-alloc order among the short-lived locals;
-   scoping the heal arm's locals the same way is worse), and the second item
-   arm jumps to the shared test rather than straight to the money fallback.
-   2026-10-01: the roll case takes the odds table into a pointer of its own
-   before indexing it (99.78% -> 99.82%), which puts the row index in v1 and
-   the base in a0 as the image has them. */
-#ifdef NON_MATCHING
+/* Each pair selects a signed index into the six-column gift odds table. */
+typedef struct {
+    short by_pair[10];
+} GiftRows;
+
+extern const GiftRows D_80064770;
+
 void BtlTalkSceneGift(void)
 {
     /* Kept in .rodata and copied onto the stack: which row of g_btl_gift_odds
        each pair of acts is answered with, and -1 for the pair that has none. */
     u_char pad[0x20];
-    short row[10] = { 0, 1, 2, 3, -1, 4, 5, 6, 7, 8 };
+    GiftRows rows = D_80064770;
     const short *p;
     const short (*odds)[GIFT_KINDS];
     BtlActor    *a;
     BtlActor    *e;
     short        roll;
-    int          item;
+    int          reward;
     int          gain;
-    int          amount;
     int          hp;
-    int          slot;
-    int          i;
+    int          heal_roll;
+    int          result;
 
     roll = rand() % GIFT_ROLLS + 1;
 
     switch (g_btl_talk_stage[g_btl_talk_depth - 1]) {
-    case GIFT_ROLL:
+    case GIFT_ROLL: {
+        int i;
+
         i = 0;
         odds = g_btl_gift_odds;
-        p = odds[row[g_btl_talk_pair]];
+        p = odds[rows.by_pair[g_btl_talk_pair]];
         /* A plain `while`: written as a do/while gcc peels the first test,
            which the original does not. */
         while (i < GIFT_KINDS) {
@@ -170,40 +160,45 @@ void BtlTalkSceneGift(void)
         g_btl_talk_stage[g_btl_talk_depth - 1] = i + GIFT_ITEM;
         BtlSeqRun();
         break;
+    }
 
     case GIFT_ITEM:
         if (g_btl_moon == MOON_NEW || g_btl_moon == MOON_FULL) {
-            item = BtlRollDrop();
-            if (item != 0) {
+            reward = BtlRollDrop();
+            if (reward != 0) {
                 goto give;
             }
-            goto try_money;
+            g_btl_talk_stage[g_btl_talk_depth - 1] = GIFT_MONEY;
+            return;
         } else if (g_btl_moon == MOON_CRESCENT || g_btl_moon == MOON_GIBBOUS
                    || g_btl_moon == MOON_WANING || g_btl_moon == MOON_OLD) {
-            item = BtlRollUncommon();
-            if (item != 0) {
+            reward = BtlRollUncommon();
+            if (reward != 0) {
                 goto give;
             }
+            g_btl_talk_stage[g_btl_talk_depth - 1] = GIFT_MONEY;
+            return;
         } else {
-            item = BtlRollCommon();
-        }
-        if (item != 0) {
-        give:
-            BtlItemAdd((short)item);
-            g_btl_talk_depth--;
-            g_btl_talk_scene[g_btl_talk_depth] = TALK_SCENE_NONE;
-            g_btl_talk_stage[g_btl_talk_depth] = TALK_STAGE_FREE;
-            BtlSetInsert(INSERT_ITEM,
-                         g_item_defs[item & 0xFFFF].name);
-            BtlSeqPlay(g_btl_talk_gift_script);
-            BtlSeqWaitDone();
+            reward = BtlRollCommon();
+            if (reward != 0) {
+                goto give;
+            }
+            g_btl_talk_stage[g_btl_talk_depth - 1] = GIFT_MONEY;
             return;
         }
-        goto try_money;
+    give:
+        BtlItemAdd((short)reward);
+        g_btl_talk_depth--;
+        g_btl_talk_scene[g_btl_talk_depth] = TALK_SCENE_NONE;
+        g_btl_talk_stage[g_btl_talk_depth] = TALK_STAGE_FREE;
+        BtlSetInsert(INSERT_ITEM,
+                     g_item_defs[reward & 0xFFFF].name);
+        BtlSeqPlay(g_btl_talk_gift_script);
+        BtlSeqWaitDone();
+        return;
 
     case GIFT_CHARM:
         if ((u_short)BtlItemSlot(GIFT_CHARM_ITEM) == 0) {
-        try_money:
             g_btl_talk_stage[g_btl_talk_depth - 1] = GIFT_MONEY;
             break;
         }
@@ -248,12 +243,12 @@ void BtlTalkSceneGift(void)
             g_btl_talk_depth--;
             g_btl_talk_scene[g_btl_talk_depth] = TALK_SCENE_NONE;
             g_btl_talk_stage[g_btl_talk_depth] = TALK_STAGE_FREE;
-            amount = g_persona_data[g_btl_offer[g_btl_offer_slot].persona].exp
+            reward = g_persona_data[g_btl_offer[g_btl_offer_slot].persona].exp
                      * (rand() % REWARD_SPAN * EXP_STEP + EXP_BASE);
-            amount = amount / REWARD_UNIT;
-            amount = amount + 1;
-            g_btl_actors[g_btl_actor_slot].unk74 += amount;
-            BtlSetInsert(INSERT_AMOUNT, (const u_char *)amount);
+            reward = reward / REWARD_UNIT;
+            reward = reward + 1;
+            g_btl_actors[g_btl_actor_slot].unk74 += reward;
+            BtlSetInsert(INSERT_AMOUNT, (const u_char *)reward);
             BtlSeqPlay(g_btl_talk_exp_script);
             while (BtlSeqState() != 0) {
                 BtlDrawFrame();
@@ -265,16 +260,16 @@ void BtlTalkSceneGift(void)
         g_btl_talk_stage[g_btl_talk_depth - 1] = GIFT_BLESS;
         BtlSetInsert(INSERT_ITEM,
                      g_item_defs[GIFT_CHARM_ITEM].name);
-        gain = rand();
-        slot = g_btl_actor_slot;
-        i = g_btl_actors[slot].stat[4]
+        heal_roll = rand();
+        hp = g_btl_actor_slot;
+        gain = g_btl_actors[hp].stat[4]
             + (g_btl_enemies[g_btl_talk_target].stat[4] >> 1)
-            + gain % HEAL_SPREAD;
-        hp = i + g_btl_actors[slot].c.hp;
-        if (hp > g_btl_actors[slot].c.hp_max) {
-            hp = g_btl_actors[slot].c.hp_max;
+            + heal_roll % HEAL_SPREAD;
+        result = gain + g_btl_actors[hp].c.hp;
+        if (result > g_btl_actors[hp].c.hp_max) {
+            result = g_btl_actors[hp].c.hp_max;
         }
-        g_btl_actors[slot].c.hp = hp;
+        g_btl_actors[hp].c.hp = result;
         BtlLoadPackEntry(GIFT_HEAL_PACK);
         while (g_cd_busy != CD_IDLE) {
             BtlDrawFrame();
@@ -295,8 +290,8 @@ void BtlTalkSceneGift(void)
         g_btl_talk_depth--;
         g_btl_talk_scene[g_btl_talk_depth] = TALK_SCENE_NONE;
         g_btl_talk_stage[g_btl_talk_depth] = TALK_STAGE_FREE;
-        amount = rand() % BLESS_MAX;
-        BtlSetInsert(INSERT_AMOUNT, (const u_char *)amount);
+        reward = rand() % BLESS_MAX;
+        BtlSetInsert(INSERT_AMOUNT, (const u_char *)reward);
         g_btl_talk_scene[g_btl_talk_depth] = TALK_SCENE_SAY;
         g_btl_talk_stage[g_btl_talk_depth] = TALK_STAGE_RUN;
         g_btl_talk_depth++;
@@ -305,7 +300,7 @@ void BtlTalkSceneGift(void)
             BtlDrawFrame();
         }
         e = &g_btl_actors[g_btl_actor_slot];
-        hp = amount + e->c.hp;
+        hp = reward + e->c.hp;
         if (hp > e->c.hp_max) {
             hp = e->c.hp_max;
         }
@@ -313,18 +308,17 @@ void BtlTalkSceneGift(void)
         break;
 
     case GIFT_HIT: {
-        int gain, amount, slot, hp;
+        int slot, hp;
 
         g_btl_talk_depth--;
         g_btl_talk_scene[g_btl_talk_depth] = TALK_SCENE_NONE;
         g_btl_talk_stage[g_btl_talk_depth] = TALK_STAGE_FREE;
-        gain = rand();
-        amount = g_persona_data[
-                     g_btl_offer[g_btl_offer_slot].persona].level + 1;
-        amount += gain % HEAL_SPREAD;
-        BtlSetInsert(INSERT_AMOUNT, (const u_char *)amount);
+        result = g_persona_data[g_btl_offer[g_btl_offer_slot].persona].level
+            + (rand() % HEAL_SPREAD + 1);
+        reward = result;
+        BtlSetInsert(INSERT_AMOUNT, (const u_char *)reward);
         slot = g_btl_actor_slot;
-        hp = g_btl_actors[slot].c.hp - amount;
+        hp = g_btl_actors[slot].c.hp - reward;
         g_btl_actors[slot].c.hp = hp;
         if (hp < 1) {
             g_btl_actors[slot].c.hp = 1;
@@ -352,7 +346,3 @@ void BtlTalkSceneGift(void)
     }
     }
 }
-#else
-INCLUDE_ASM("btlp/nonmatchings/talkscenegift", BtlTalkSceneGift);
-#endif
-
