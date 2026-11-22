@@ -1672,21 +1672,15 @@ void CoinExchangeStep(void)
     }
 }
 
-#ifdef NON_MATCHING
-/* p = 10 to the power (digits right of the cursor) + 1: the place value
-   of the digit the exchange's cursor is on. */
-#define EXCHANGE_PLACE()                                                          p = 10;                                                                       d = g_menu->arcana_row.hi - g_menu->arcana_row.cur - 1;                       for (i = 0; i < d; i++) {                                                         p *= 10;                                                                  }
-
 /* How many coins to buy, set a digit at a time: left and right pick the
    digit, up and down change it. A asks to confirm. With the coin case
    full, or less than a coin's price in hand, it only says so. */
 void CoinExchangePick(void)
 {
-    int p;
-    int i;
-    int d;
-    int w;
-    int n;
+    int place;
+    int remaining;
+    int count;
+    int digits;
 
     if (g_coins > COINS_MAX - 1) {
         BgMapInit(D_800BA60C, 0);
@@ -1717,19 +1711,30 @@ void CoinExchangePick(void)
                 g_menu->unk300.hi = g_facility_max;
                 goto clamp;
             }
-            EXCHANGE_PLACE();
-            g_menu->unk300.cur = g_menu->unk100.cur / p;
-            g_menu->unk300.hi = (u_int)g_facility_max / p + 1;
+            place = 10;
+            digits = g_menu->arcana_row.hi - g_menu->arcana_row.cur;
+            remaining = digits - 1;
+            for (count = 0; count < remaining; count++) {
+                place *= 10;
+            }
+            g_menu->unk300.cur = g_menu->unk100.cur / place;
+            g_menu->unk300.hi = (u_int)g_facility_max / place + 1;
         } else if (MenuStepCursor(&g_menu->unk300)) {
             if (g_menu->arcana_row.cur != g_menu->arcana_row.hi) {
-                EXCHANGE_PLACE();
+                place = 10;
+                remaining = g_menu->arcana_row.hi;
+                remaining -= g_menu->arcana_row.cur;
+                remaining--;
+                for (count = 0; count < remaining; count++) {
+                    place *= 10;
+                }
                 if (g_menu->unk300.cur == -1) {
                     g_menu->unk300.cur = 0;
-                    n = 0;
+                    count = 0;
                 } else {
-                    n = p * g_menu->unk300.cur + g_menu->unk100.cur % p;
+                    count = place * g_menu->unk300.cur + g_menu->unk100.cur % place;
                 }
-                g_menu->unk100.cur = n;
+                g_menu->unk100.cur = count;
             } else {
                 g_menu->unk100.cur = g_menu->unk300.cur;
             }
@@ -1737,8 +1742,14 @@ void CoinExchangePick(void)
     clamp:
         if (g_menu->unk100.cur > g_menu->unk100.hi) {
             g_menu->unk100.cur = g_menu->unk100.hi;
-            EXCHANGE_PLACE();
-            g_menu->unk300.cur = g_menu->unk100.cur / p;
+            place = 10;
+            remaining = g_menu->arcana_row.hi;
+            remaining -= g_menu->arcana_row.cur;
+            remaining--;
+            for (count = 0; count < remaining; count++) {
+                place *= 10;
+            }
+            g_menu->unk300.cur = g_menu->unk100.cur / place;
         } else if (g_menu->unk100.cur < 0) {
             g_menu->unk100.cur = 0;
         }
@@ -1751,8 +1762,8 @@ void CoinExchangePick(void)
         }
         TileMapFillRect(AT(g_tilemap1, 3, 10), 0, 9, 1, MAP_W);
         TileMapFillRect(AT(g_tilemap1, 5, 10), 0, 9, 1, MAP_W);
-        n = FormatDecimal(g_facility_max, g_hud_digits, 8);
-        TileMapFillRect(AT(g_tilemap1, 3, 19) - n, GLYPH_DIGIT0, n, 1, MAP_W);
+        digits = FormatDecimal(g_facility_max, g_hud_digits, 8);
+        TileMapFillRect(AT(g_tilemap1, 3, 19) - digits, GLYPH_DIGIT0, digits, 1, MAP_W);
         TileMapWriteRowRev(g_hud_digits, AT(g_tilemap1, 3, 18), GLYPH_DIGIT0,
                            FormatDecimal(g_menu->unk100.cur, g_hud_digits, 8));
         TileMapWriteRowRev(g_hud_digits, AT(g_tilemap1, 5, 18), GLYPH_DIGIT0,
@@ -1779,9 +1790,6 @@ void CoinExchangePick(void)
         g_persona_data_step = 0xFF;
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/ui/facilitymisc", CoinExchangePick);
-#endif
 
 /* Yes or no to the exchange: yes turns the money into coins and redraws
    both purses and what is left to buy; either way the question closes. */
