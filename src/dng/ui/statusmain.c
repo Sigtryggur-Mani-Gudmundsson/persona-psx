@@ -40,7 +40,6 @@ extern void DrawPersonaKeyName();
     TileMapWriteRowRev(g_hud_digits, AT(row, last), GLYPH_DIGIT0,              \
                        FormatDecimal(value, g_hud_digits, width))
 
-#ifdef NON_MATCHING
 void StatusDrawMain(u_char slot)
 {
     int      member = g_party[slot];   /* then each digit count, then a row */
@@ -136,6 +135,3 @@ void StatusDrawMain(u_char slot)
     TileMapFillRect(g_tilemap2, 0, 8, 1, MAP_W);
     TileMapWriteRow(c->name, g_tilemap2, 0, 8);
 }
-#else
-INCLUDE_ASM("dng/nonmatchings/ui/statusmain", StatusDrawMain);
-#endif

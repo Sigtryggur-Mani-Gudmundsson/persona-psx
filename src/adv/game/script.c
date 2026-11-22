@@ -973,6 +973,7 @@ extern u_long  g_bg_shown;
 extern u_char  g_kage_sprite[];
 extern u_char  g_fade_sprites;
 extern u_char  g_adv_loading;
+extern const char str_adv_advcmd2[];
 
 extern void AdvFadeDownBlocking(short step, short floor);
 extern void FadeBlackout(void);
@@ -988,7 +989,6 @@ extern void AdvSpecialProps(void);
    picture up over the whole room, with the room faded out and everything in
    it cleared away; 0x85 brings the room back, reloads ADVCMD.BIN over the
    picture and slides the command bar back down from the top. */
-#ifdef NON_MATCHING
 void AdvScriptSpecial(u_char n)
 {
     int y;
@@ -1021,7 +1021,7 @@ void AdvScriptSpecial(u_char n)
     case SPECIAL_KAGE_END:
         AdvFadeDownBlocking(4, 0);
         g_adv_loading = 0;
-        LoadFileToAddrAsync("\\ADV\\ADVCMD.BIN;1", (void *)ADVCMD_AT);
+        LoadFileToAddrAsync(str_adv_advcmd2, (void *)ADVCMD_AT);
         AdvPickEffect();
         AdvEffectSetupSlots();
         AdvRoomRebuild();
@@ -1058,7 +1058,3 @@ void AdvScriptSpecial(u_char n)
         break;
     }
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/game/script", AdvScriptSpecial);
-#endif
-
