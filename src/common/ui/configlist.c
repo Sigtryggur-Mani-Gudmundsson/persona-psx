@@ -42,6 +42,7 @@
    reads to choose between the two libsnd output-mode calls, which is the same
    MONO / STEREO setting the list page shows. */
 extern u_char g_options[];
+extern u_char g_map_north_up;
 
 /* This unit was built against int-taking prototypes, so the slot argument is
    passed unmasked and the callee narrows it. */
@@ -56,8 +57,7 @@ extern void SlotSetPos(u_char slot, int attr, short x, short y);
    and every step clicks. */
 #define OPT_FLAGS (MENU_WRAP | MENU_RIGHT_IS_NEXT | MENU_CLICK_A)
 
-/* This routine reaches the option bytes by address rather than through
-   g_options. */
+/* The sound setting is accessed through the fixed option-block address. */
 #define OPT_AT ((u_char *)0x801F2AC8)
 
 /* An option value never needs more than the low byte of the list index. */
@@ -131,7 +131,7 @@ void ConfigListApplyOption(void)
 {
     switch (g_menu->cfg_list.cur) {
     case 0:
-        OPT_AT[3] = OPT_VALUE;
+        g_map_north_up = OPT_VALUE;
         break;
     case 1:
         OPT_AT[0] = OPT_VALUE;
