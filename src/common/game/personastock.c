@@ -15,7 +15,7 @@
 /* Slides the used slots down over the holes, then reports the last one still
    occupied. -1 says the stock is empty. Only the twelve rows the screen shows
    are tidied; the three slots past them are left where they are. */
-short PersonaStockCompact(void)
+int PersonaStockCompact(void)
 {
     u_char *stock;
     int     i;
@@ -35,7 +35,7 @@ short PersonaStockCompact(void)
     }
     for (i = STOCK_ROWS - 1; i >= 0; i--) {
         if (stock[i] != STOCK_FREE) {
-            return i;
+            return (short)i;
         }
     }
     return -1;

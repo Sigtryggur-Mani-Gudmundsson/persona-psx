@@ -17,6 +17,7 @@
 #include <libgs.h>
 #include <persona/main/state.h>
 #include <persona/common/imageanim.h>
+#include <persona/common/persona.h>
 #include <persona/adv/ot.h>
 #include <persona/common/menuctx.h>
 #include <persona/common/formation.h>
@@ -81,7 +82,6 @@ extern void FadeUpBlocking(short step, short limit);
 extern void FadeDownBlocking(short step, short floor);
 extern void SsSetNck(short handle);
 extern u_char PartyLastSlot(void);
-extern short PersonaStockCompact(void);
 extern void RunFrame(void);
 extern u_char MenuWheelAnimIn(void);
 extern u_char MenuWheelAnimOut(void);

@@ -64,7 +64,6 @@ extern u_char D_800B1EB8[];
 extern u_char g_fm_prompt_cur_def[];
 extern u_char g_fm_hint_def[];
 extern u_char g_fm_hint2_def[];
-extern short  PersonaStockCompact(void);
 extern void   PersonaStockDraw(void);
 extern void   StockEmptyNotice(void);
 extern u_char D_800B17E0[];

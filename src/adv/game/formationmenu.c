@@ -13,6 +13,7 @@
 #include <libgpu.h>
 #include <libgs.h>
 #include <persona/common/menuctx.h>
+#include <persona/common/persona.h>
 #include <persona/common/formation.h>
 #include <persona/common/bg.h>
 #include <persona/adv/personapage.h>
@@ -74,7 +75,6 @@ extern void  FadeUpBlocking(short step, short limit);
 extern void  FadeDownBlocking(short step, short floor);
 extern void  SsSetNck(short handle);
 extern u_char PartyLastSlot(void);
-extern short PersonaStockCompact(void);
 
 extern void FormationCmdStep(void);
 extern void FormationPickMember(void);

@@ -16,6 +16,7 @@
 #include <libgpu.h>
 #include <libgs.h>
 #include <persona/common/menuctx.h>
+#include <persona/common/persona.h>
 #include <persona/common/bg.h>
 #include <persona/common/item.h>
 #include <persona/adv/personapage.h>
@@ -91,7 +92,6 @@ extern void  SoundPlaySeq(u_short slot, u_short seq, short vab);
 extern void  CellsInit(void);
 extern void  FontCellsInit(void);
 extern u_char PartyLastSlot(void);
-extern short PersonaStockCompact(void);
 extern void  BgReset(void);
 extern void  FadeBlackout(void);
 extern void  ImageAnimStopAll(void);
@@ -342,9 +342,7 @@ u_char FacilityScreen(u_char id)
         break;
     case 7:
         PersonaSlotsCompact();
-        /* Called without a prototype here: the count comes back as an
-           int, not extended from a short. */
-        i = ((int (*)())PersonaStockCompact)();
+        i = PersonaStockCompact();
         MenuListInit(&g_menu->top, 0, 0, i, 0x1A);
         MenuListInit(&g_menu->status_page, 0, 0, i, 0x16);
         MenuListInit(&g_menu->unk2D0, 0, 0, 4, 0x14);

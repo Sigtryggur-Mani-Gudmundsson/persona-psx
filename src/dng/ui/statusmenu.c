@@ -53,7 +53,6 @@ extern void  DrawStatusHud(void);
 extern void  BgBoxShow(void);
 extern void  MenuWheelTurn3(short kind, short list);
 extern void  StatusDrawPersonaRows(int member);
-extern short PersonaStockCompact(void);
 extern void  PersonaStockDraw(void);
 extern void  StockEmptyNotice(void);
 extern int    MenuStepMember(int *sel, u_char last);

@@ -59,7 +59,6 @@ extern void   BgMapInit(void *script, short speed);
 extern void   PersonaDataLayout(void);
 /* Defined old-style, as in the persona data screen. */
 extern void   PersonaDataDraw();
-extern short  PersonaStockCompact(void);
 extern void   PersonaStockDraw(void);
 extern void   DrawCharStatBars(Char *rec);
 extern void   DrawPersonaStatBars(Persona *p);

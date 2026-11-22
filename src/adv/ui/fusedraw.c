@@ -40,7 +40,6 @@ extern u_char  D_800B1D08[];
 extern u_char  D_800B2330[];
 extern u_char  D_800B130C[];
 
-extern short PersonaStockCompact(void);
 extern void  FuseCompute(u_char a, u_char b, short mode, FuseResult *out,
                            short special);
 extern void  FuseChartDraw(void);

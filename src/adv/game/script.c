@@ -221,7 +221,6 @@ extern short  ItemsFind(u_short id);
 extern void   PersonaStockAdd(u_char id);
 extern u_char PersonaStockFind(u_char id);
 extern u_char PersonaStockFindFree(void);
-extern int    PersonaStockCompact(void);
 extern short  PersonaFindFree(void);
 extern short  PersonaFind(u_char key);
 extern u_char CharEntryFind(u_char chr, u_char v);

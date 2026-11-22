@@ -80,6 +80,9 @@ typedef struct {
 #define STOCK_ROWS 12
 #define STOCK_FREE 0
 
+/* Last occupied stock row after compaction, or -1 for an empty stock. */
+int PersonaStockCompact(void);
+
 /* What BtlStockRandomise rolls: ids 2 to 101. */
 #define STOCK_RANDOM_RANGE 100
 #define STOCK_RANDOM_FIRST 2
