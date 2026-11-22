@@ -177,3 +177,33 @@ rom:0x42D0C reloc:MIPS_HI16 symbol:g_trade_moon_recipes addend:-0x180
 rom:0x42D14 reloc:MIPS_LO16 symbol:g_trade_moon_recipes addend:-0x180
 rom:0x42D20 reloc:MIPS_HI16 symbol:g_trade_moon_recipes addend:-0x17E
 rom:0x42D28 reloc:MIPS_LO16 symbol:g_trade_moon_recipes addend:-0x17E
+
+// BgMapSetCell uses index-first absolute addresses in the shared work area.
+rom:0x3534 reloc:MIPS_NONE symbol:D_800E2254
+rom:0x353C reloc:MIPS_NONE symbol:D_800E2254
+rom:0x3540 reloc:MIPS_NONE symbol:D_800E2256
+rom:0x3548 reloc:MIPS_NONE symbol:D_800E2256
+rom:0x3550 reloc:MIPS_NONE symbol:D_800E2255
+rom:0x3558 reloc:MIPS_NONE symbol:D_800E2255
+rom:0x3570 reloc:MIPS_NONE symbol:D_800E2256
+rom:0x3578 reloc:MIPS_NONE symbol:D_800E2256
+
+// FontCellsInit uses index-first absolute addresses in the shared work area.
+rom:0x18AF4 reloc:MIPS_NONE symbol:D_800E8655
+rom:0x18AFC reloc:MIPS_NONE symbol:D_800E8655
+rom:0x18B00 reloc:MIPS_NONE symbol:D_800E8656
+rom:0x18B08 reloc:MIPS_NONE symbol:D_800E8656
+rom:0x18B0C reloc:MIPS_NONE symbol:D_800E8658
+rom:0x18B14 reloc:MIPS_NONE symbol:D_800E8658
+rom:0x18B18 reloc:MIPS_NONE symbol:D_800E865A
+rom:0x18B20 reloc:MIPS_NONE symbol:D_800E865A
+
+// MapTileSeen uses index-first absolute addresses in the shared work area.
+rom:0x326FC reloc:MIPS_NONE symbol:D_801F2B38
+rom:0x32704 reloc:MIPS_NONE symbol:D_801F2B38
+
+// MapMarkTile uses index-first absolute addresses in the shared work area.
+rom:0x32768 reloc:MIPS_NONE symbol:D_801F2B38
+rom:0x32770 reloc:MIPS_NONE symbol:D_801F2B38
+rom:0x3277C reloc:MIPS_NONE symbol:D_801F2B38
+rom:0x32784 reloc:MIPS_NONE symbol:D_801F2B38

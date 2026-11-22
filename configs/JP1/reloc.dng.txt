@@ -70,3 +70,23 @@ rom:0x321DC reloc:MIPS_HI16 symbol:g_map_name_cells addend:0x14
 rom:0x321E0 reloc:MIPS_LO16 symbol:g_map_name_cells addend:0x14
 rom:0x321F4 reloc:MIPS_HI16 symbol:g_map_name_cells addend:0x15
 rom:0x321F8 reloc:MIPS_LO16 symbol:g_map_name_cells addend:0x15
+
+// BgMapSetCell uses index-first absolute addresses in the shared work area.
+rom:0x12CFC reloc:MIPS_NONE symbol:D_800E2254
+rom:0x12D04 reloc:MIPS_NONE symbol:D_800E2254
+rom:0x12D08 reloc:MIPS_NONE symbol:D_800E2256
+rom:0x12D10 reloc:MIPS_NONE symbol:D_800E2256
+rom:0x12D18 reloc:MIPS_NONE symbol:D_800E2255
+rom:0x12D20 reloc:MIPS_NONE symbol:D_800E2255
+rom:0x12D38 reloc:MIPS_NONE symbol:D_800E2256
+rom:0x12D40 reloc:MIPS_NONE symbol:D_800E2256
+
+// FontCellsInit uses index-first absolute addresses in the shared work area.
+rom:0x2708C reloc:MIPS_NONE symbol:D_800E8655
+rom:0x27094 reloc:MIPS_NONE symbol:D_800E8655
+rom:0x27098 reloc:MIPS_NONE symbol:D_800E8656
+rom:0x270A0 reloc:MIPS_NONE symbol:D_800E8656
+rom:0x270A4 reloc:MIPS_NONE symbol:D_800E8658
+rom:0x270AC reloc:MIPS_NONE symbol:D_800E8658
+rom:0x270B0 reloc:MIPS_NONE symbol:D_800E865A
+rom:0x270B8 reloc:MIPS_NONE symbol:D_800E865A
