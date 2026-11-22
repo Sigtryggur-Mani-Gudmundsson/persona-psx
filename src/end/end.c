@@ -260,7 +260,8 @@ u_char g_end_logo_v[] = { 0x0, 0x30, 0x0, 0x60, 0x30, 0x0, 0x0, 0x0 };
 u_char g_end_logo_w[] = { 0x68, 0x68, 0x60, 0xA0, 0x20, 0x0, 0x0, 0x0 };
 u_char g_end_logo_h[] = { 0x30, 0x30, 0x30, 0x28, 0x18, 0x0, 0x0, 0x0 };
 
-#ifdef NON_MATCHING
+extern const char D_80080000[];
+
 /* Runs the ending's credits script to its end and returns to the resident
    with the scene it goes on to. */
 int main(void)
@@ -293,7 +294,7 @@ int main(void)
     GsInitGraph(320, 240, 4, 0, 0);
     ending = g_movie_id - 0x30;
     g_end_script = g_end_scripts[ending];
-    while (!CdSearchFile(&g_end_file, "\\EXE\\END.BIN;1")) {
+    while (!CdSearchFile(&g_end_file, D_80080000)) {
     }
     g_end_base = CdPosToInt(&g_end_file.pos);
     load   = 0;
@@ -611,9 +612,6 @@ done:
     ResetGraph(0);
     StopCallback();
 }
-#else
-INCLUDE_ASM("end/nonmatchings/end", main);
-#endif
 
 /* Brings the display and the sound up for the credits: two ordering tables
    at 320x240, every sprite hidden, the sequencer ready with nothing open. */
