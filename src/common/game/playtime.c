@@ -9,16 +9,26 @@
 #include <decomp/types.h>
 
 /* Four bytes: hours, minutes, seconds, frames. Everything but the hours rolls
-   over at 60, and the clock stops at 99:59:59:59. Reached by hardcoded address
-   rather than through a linker symbol. */
+   over at 60, and the clock stops at 99:59:59:59. */
 #define PLAYTIME_ADDR 0x801F29BC
+
+#if defined(VER_JP1) && WORK_BIAS == 0
+extern u_char g_playtime_min;
+extern u_char g_playtime_sec;
+extern u_char g_playtime_frame;
+
+#define PLAYTIME_AT_CAP(t) \
+    (g_playtime_frame == 59 && g_playtime_sec == 59 && g_playtime_min == 59 && (t)[0] == 99)
+#else
+#define PLAYTIME_AT_CAP(t) ((t)[3] == 59 && (t)[2] == 59 && (t)[1] == 59 && (t)[0] == 99)
+#endif
 
 void PlayTimeTick(void)
 {
     u_char *t;
 
     t = (u_char *)PLAYTIME_ADDR;
-    if (t[3] == 59 && t[2] == 59 && t[1] == 59 && t[0] == 99) {
+    if (PLAYTIME_AT_CAP(t)) {
         return;
     }
 
