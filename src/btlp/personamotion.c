@@ -44,7 +44,6 @@
 #include <persona/btlp/sound.h>
 #include <persona/btlp/talk.h>
 #include <libsnd.h>
-#include <decomp/include_asm.h>
 
 /* Set on a persona whose record is let go at the end rather than kept: the
    fade frees it instead of putting it back on motion zero, and the landing
@@ -64,6 +63,10 @@
 #define PERSONA_GROW_HALF  8
 #define PERSONA_SETTLE     0x35
 #define PERSONA_SETTLE_HALF 0x1A
+
+/* Height takes one step toward unity at the selected frame rate. */
+#define PERSONA_SETTLED_HEIGHT(height, divisor) \
+    ((height) > PERSONA_UNITY ? (height) - (height) / (divisor) : PERSONA_UNITY)
 
 /* The motion the landing hands on to, and how far the shock pushes a member
    who is standing on the field when it happens. */
@@ -90,19 +93,6 @@
 
 extern short g_btl_seq_handle[];
 
-/* 99.35%: the settle's own copy of the height. Loaded before the test, the
-   image's register is right and gcc lifts the divide's sign fixup out of the
-   two arms; loaded inside the arm, the fixup stays where the image has it and
-   the load wants a move. Seven shapes tried and 29,000 permuter iterations
-   found nothing under the hand version.
-   2026-09-26: the "lift" is reorg, not a code motion. With the height live
-   into the arms (loaded before the test, or spelt drop - drop / (half ? A :
-   B), which also gets the register right), sched1 opens both arms with the
-   sign shift, and dbr puts that one insn in the branch's delay slot and
-   deletes it from both arms. The image opens each arm with its own lui of the
-   magic and has the shift after the mult, filling the multiply's latency.
-   What makes sched1 do that with the height live-in is the open question. */
-#ifdef NON_MATCHING
 void BtlPersonaMotion03(BtlObj *o)
 {
     /* Two locals, not one: the scale as it stands and the scale it is going
@@ -144,18 +134,16 @@ void BtlPersonaMotion03(BtlObj *o)
             o->scale_x = PERSONA_UNITY;
         }
 
-        if (o->scale_y > PERSONA_UNITY) {
+        if (o->scale_y <= PERSONA_UNITY) {
+            o->scale_y = PERSONA_UNITY;
+        } else {
             drop = o->scale_y;
             if (g_btl_half_rate != 0) {
-                step = drop / PERSONA_SETTLE_HALF;
+                o->scale_y = PERSONA_SETTLED_HEIGHT(drop, PERSONA_SETTLE_HALF);
             } else {
-                step = drop / PERSONA_SETTLE;
+                o->scale_y = PERSONA_SETTLED_HEIGHT(drop, PERSONA_SETTLE);
             }
-            o->scale_y = drop - step;
-        } else {
-            o->scale_y = PERSONA_UNITY;
         }
-
 
         if (o->scale_x == PERSONA_UNITY && o->scale_y == PERSONA_UNITY) {
             if ((o->attr & PERSONA_ONE_SHOT) != 0) {
@@ -186,9 +174,6 @@ void BtlPersonaMotion03(BtlObj *o)
     }
 }
 
-#else
-INCLUDE_ASM("btlp/nonmatchings/personamotion", BtlPersonaMotion03);
-#endif
 
 void BtlPersonaMotion04(BtlObj *o)
 {
