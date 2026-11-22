@@ -2,7 +2,6 @@
  *   0x8006BBC0 FieldTileEffect
  */
 #include <decomp/types.h>
-#include <decomp/include_asm.h>
 #include <libgte.h>
 #include <libgpu.h>
 #include <libgs.h>
@@ -46,13 +45,6 @@ extern u_char g_puzzle_goal[2][5][5];
    spot event ran. The fall's angle and the light level, and then every
    counter, are two variables reused throughout, and the clamps carry their
    step as a side effect - without it fold turns them into MIN/MAX. */
-/* 98.35%: the only difference is which copy of the puzzle's jingle call
-   cross-jumping keeps. Both arms end in FieldPlayJingle; loop.c moves the
-   "bit set" arm out of the loop, and the later jump pass merges the two
-   calls - keeping the in-loop one here, the moved one in the image. Every
-   ordering of the arms, a shared call, a default number and a goto to the
-   function's end leave it the same or worse. */
-#ifdef NON_MATCHING
 int FieldTileEffect(void)
 {
     int      effect_ran;
@@ -64,6 +56,7 @@ int FieldTileEffect(void)
     int      flags;
     int      base;
     u_char   cx, cy;
+    u_char   puzzle_flags;
     TileDef *t;
 
     effect_ran = 0;
@@ -146,10 +139,9 @@ int FieldTileEffect(void)
             x = g_puzzle_x[k];
             for (j = 0; j < g_puzzle_w[k]; x++, j++) {
                 if (g_puzzle_goal[k][i][j] != (g_floor_grid[y][x] & 1)) {
-                    if (PUZZLE_FLAGS & 0x10) {
-                        PUZZLE_FLAGS &= ~0x10;
-                        FieldPlayJingle(0x1C, 1);
-                        return 0;
+                    puzzle_flags = PUZZLE_FLAGS;
+                    if (puzzle_flags & 0x10) {
+                        goto clear_puzzle;
                     }
                     FieldPlayJingle(0x1F, 1);
                     return 0;
@@ -174,13 +166,18 @@ int FieldTileEffect(void)
         if (!effect_ran) {
             FieldDamageFloor(8);
         }
+        goto finish;
+
+    clear_puzzle:
+        /* The failed check carries the flags it read out of the loop. */
+        PUZZLE_FLAGS = puzzle_flags & ~0x10;
+        FieldPlayJingle(0x1C, 1);
+        goto finish;
     } else if (flags == TILE_POISON) {
         if (!effect_ran) {
             FieldPoisonFloor();
         }
     }
+finish:
     return 0;
 }
-#else
-INCLUDE_ASM("dng/nonmatchings/field/fieldtile", FieldTileEffect);
-#endif
