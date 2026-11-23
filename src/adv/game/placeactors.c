@@ -18,7 +18,6 @@
  * is emptied at the end.
  */
 #include <decomp/types.h>
-#include <decomp/include_asm.h>
 #include <libgte.h>
 #include <libgpu.h>
 #include <libgs.h>
@@ -49,7 +48,13 @@
 #define g_pack_sprites ((void **)0x80100070)
 #define g_flag_bank1   ((u_char *)0x801F2A08)
 
-#define BANK1_SET(id) (g_flag_bank1[(id) / 8] & (1 << ((id) & 7)))
+static inline int MarkFlagSet(short id)
+{
+    u_char *flags = g_flag_bank1;
+    int value = flags[id / 8];
+
+    return value & (1 << (id & 7));
+}
 
 typedef struct {
     /* 0x0 */ short   unk0;
@@ -124,79 +129,82 @@ static inline void PlaceTile(short x, short y, PlacedActor *a)
 #define M g_placed[MARK_ACTOR + i]
 #define S g_placed[SPOT_ACTOR + i]
 
-#ifdef NON_MATCHING
 void AdvPlaceActors(void)
 {
     u_char i;
+    u_char room_kind;
     AdvChest *c;
+    u_char pack_sprite;
+    short shadow_slot;
+    u_char page;
 
     i = 0;
 actors:
-
-        if (A.kind != KIND_NONE) {
-            PlaceTile(A.x, A.y, &A);
-            A.id = 0;
-            A.world_x += 1;
-            A.world_y -= 2;
-            if (A.kind >= KIND_PACK) {
-                if (A.flags & ACTOR_PLAIN) {
-                    SlotInit(g_pack_sprites[(u_char)(A.kind - KIND_PACK)], i,
-                             A.z, A.world_x, A.world_y);
-                } else {
-                    SlotInitTagged(g_pack_sprites[(u_char)(A.kind - KIND_PACK)],
-                                   i, A.z, A.world_x, A.world_y);
-                }
-            } else if (A.kind == KIND_PARTY) {
+    if (A.kind != KIND_NONE) {
+        PlaceTile(A.x, A.y, &A);
+        A.world_x = (u_short)A.world_x + 1;
+        A.world_y = (u_short)A.world_y - 2;
+        A.id = 0;
+        if (A.kind >= KIND_PACK) {
+            pack_sprite = A.kind - KIND_PACK;
+            if (A.flags & ACTOR_PLAIN) {
+                SlotInit(g_pack_sprites[pack_sprite], i, A.z,
+                         A.world_x, A.world_y);
+            } else {
+                SlotInitTagged(g_pack_sprites[pack_sprite], i, A.z,
+                               A.world_x, A.world_y);
+            }
+        } else {
+            room_kind = A.kind;
+            if (room_kind == KIND_PARTY) {
                 ActorSetStandSprite(i);
                 i++;
-                goto next;
-            } else if ((A.flags & ACTOR_PLAIN) || A.kind < KIND_PLAIN) {
-                SlotInit(g_actor_defs[A.kind * 4 + A.dir], i, A.z,
+                goto next_actor;
+            } else if ((A.flags & ACTOR_PLAIN) || room_kind < KIND_PLAIN) {
+                SlotInit(g_actor_defs[room_kind * 4 + A.dir], i, A.z,
                          A.world_x + 4, A.world_y - 2);
             } else {
-                SlotInitTagged(g_actor_defs[A.kind * 4 + A.dir], i, A.z,
+                SlotInitTagged(g_actor_defs[room_kind * 4 + A.dir], i, A.z,
                                A.world_x + 4, A.world_y - 2);
             }
-            g_slot_cur = &g_slots[i];
-            g_slot_cur->clut_y = i;
-            g_slot_cur->tpage_add = i;
-            SlotSetBrightness(i, A.bright);
-            ActorSetShadowSprite(i++);
-        } else {
-            A.id = ACTOR_NONE;
-            i++;
         }
-    next:
+        page = i;
+        g_slot_cur = &g_slots[i];
+        g_slot_cur->clut_y = shadow_slot = i;
+        g_slot_cur->tpage_add = page;
+        SlotSetBrightness(i, A.bright);
+        ActorSetShadowSprite(shadow_slot);
+        i++;
+    } else {
+        A.id = ACTOR_NONE;
+        i++;
+    }
+next_actor:
     if (i < GROUP) goto actors;
-
 
     i = 0;
 props:
-
-        if (P.kind != KIND_NONE) {
-            PlaceTile(P.x, P.y, &P);
-            if (P.unk23) {
-                SlotInit(g_pack_sprites[(u_char)(P.kind - KIND_PACK)],
-                         PROP_SLOT + i, P.z, P.world_x, P.world_y);
-            } else {
-                SlotInitTagged(g_pack_sprites[(u_char)(P.kind - KIND_PACK)],
-                               PROP_SLOT + i, P.z, P.world_x, P.world_y);
-            }
-            SlotSetBrightness(PROP_SLOT + i, P.bright);
-            P.id = 0;
-            i++;
+    if (P.kind != KIND_NONE) {
+        pack_sprite = P.kind - KIND_PACK;
+        PlaceTile(P.x, P.y, &P);
+        if (P.unk23) {
+            SlotInit(g_pack_sprites[pack_sprite], PROP_SLOT + i, P.z,
+                     P.world_x, P.world_y);
         } else {
-            P.id = ACTOR_NONE;
-            i++;
+            SlotInitTagged(g_pack_sprites[pack_sprite], PROP_SLOT + i, P.z,
+                           P.world_x, P.world_y);
         }
+        SlotSetBrightness(PROP_SLOT + i, P.bright);
+        P.id = 0;
+    } else {
+        P.id = ACTOR_NONE;
+    }
+    i++;
     if (i < GROUP) goto props;
 
-
-    i = 0;
-marks:
-
+    for (i = 0; i < GROUP; i++) {
+        c = &g_chest_defs[i];
         if (M.x != 0xFF && M.y != 0xFF) {
-            c = &g_chest_defs[i];
             M.move = MOVE_NONE;
             PlaceTile(M.x, M.y, &M);
             M.world_x += 3;
@@ -204,31 +212,22 @@ marks:
             SlotInitTagged(g_stand_defs[64 + g_adv_scene->pad25],
                            MARK_ACTOR + i, M.z, M.world_x, M.world_y);
             M.id = 0;
-            if (BANK1_SET(c->flag)) {
+            if (MarkFlagSet(c->flag)) {
                 g_slot_cur = &g_slots[MARK_ACTOR + i];
                 g_slot_cur->u_add = 0x30;
             }
-            i++;
         } else {
             M.id = ACTOR_NONE;
-            i++;
         }
-    if (i < GROUP) goto marks;
+    }
 
-
-    i = 0;
-spots:
-
+    for (i = 0; i < GROUP; i++) {
         if (S.dir != KIND_NONE) {
             PlaceTile(S.x, S.y, &S);
             SlotInitTagged(g_spot_sprites[S.dir], SPOT_SLOT + i, SPOT_Z,
                            S.world_x, S.world_y);
         }
-        i++;
-    if (i < GROUP) goto spots;
+    }
 
     g_placed[LEADER].id = ACTOR_NONE;
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/game/placeactors", AdvPlaceActors);
-#endif
