@@ -45,25 +45,34 @@ void FieldFxRun(int kind)
 /* `a` moved `d` further from 0, `d` held in n. */
 #define AWAY(a, d) (n = (d), (a) < 0 ? (a) - n : (a) + n)
 
+extern const SVECTOR D_80064418, D_80064420;
+
+static __inline__ void FieldFxFall(SVECTOR *position, int speed)
+{
+    short height = position->vy;
+    short delta = (speed * speed) >> 16;
+
+    height += speed < 0 ? -delta : delta;
+    position->vy = height;
+}
+
 /* One frame of the shattering: every tile darkens; once its delay has run
    out it tumbles and drifts off at random, falling faster and faster
    (kind 0) or drifting up and down as well; before that it only backs
    away. Kind 1 also spins the whole screen. The bottom row's tiles are
    half height. */
-#ifdef NON_MATCHING
 void FieldFxStep(int kind)
 {
     MATRIX    m;
     MATRIX    tm;
-    SVECTOR   bottom_left = { -16, 16, 0 };
-    SVECTOR   bottom_right = { 16, 16, 0 };
+    SVECTOR   bottom_left = D_80064418;
+    SVECTOR   bottom_right = D_80064420;
     long      flag;
     long      p;
     long      otz;
     POLY_FT4 *tile;
     int       i;
     int       n;
-    int       y;
     int       shift;
 
     tile = g_fx_tiles;
@@ -86,9 +95,7 @@ void FieldFxStep(int kind)
             g_fx_pos[i].vz -= rand() % 4 + 1;
             if (kind == 0) {
                 g_wave_speed[i] += 0x40;
-                n = (g_wave_speed[i] * g_wave_speed[i]) >> 16;
-                y = g_fx_pos[i].vy;
-                g_fx_pos[i].vy = g_wave_speed[i] < 0 ? y - n : y + n;
+                FieldFxFall(&g_fx_pos[i], g_wave_speed[i]);
             } else {
                 g_fx_pos[i].vy = AWAY(g_fx_pos[i].vy, rand() % 6 + 1);
             }
@@ -125,9 +132,6 @@ void FieldFxStep(int kind)
     GsSortClear(0, 0, 0, &g_scene->world_ot[g_draw_buf]);
     GsDrawOt(&g_scene->world_ot[g_draw_buf]);
 }
-#else
-INCLUDE_ASM("dng/nonmatchings/field/fieldfx", FieldFxStep);
-#endif
 
 /* Cuts the screen into tiles 32 pixels square (the bottom row 16 high),
    each textured from its own part of the display, and gives each a random
