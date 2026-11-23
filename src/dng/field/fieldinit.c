@@ -57,40 +57,40 @@ void FieldInitGraph(void)
    its index, clears what a new floor starts without, and faces the view the
    way the party faces. Both clocks' frame counts are rounded up to a
    multiple of three. */
-/* 95.0%: the order is the image's statement for statement, but sched puts
-   the division's constant and the D_8009FDEC clear one slot early, and
-   keeps g_scene in a0 across the clock store only in the image. */
-#ifdef NON_MATCHING
 void FieldSetFloor(void)
 {
+    DngScene *scene;
+    DngScene *message_scene;
+    u_long event_offset;
+
     g_model_defs = (ModelDef *)(PACK_BASE + *g_pack_model_tab);
     g_tile_defs = (TileDef *)(INDEX_BASE + *g_index_tile_tab);
     g_floor_info = (u_char *)(INDEX_BASE + g_index_info_tab[DNG_FLOOR]);
     g_floor_grid = (void *)(INDEX_BASE + g_index_grid_tab[DNG_FLOOR]);
     g_floor_objs = (u_char *)(PACK_BASE + g_pack_obj_tab[DNG_FLOOR]);
     g_floor_spots = (u_char *)(PACK_BASE + g_pack_spot_tab[DNG_FLOOR]);
+    event_offset = *(u_long *)((u_long)g_pack_event_tab + sizeof(u_long) * DNG_FLOOR);
+    message_scene = g_scene;
     D_8009FDEC = 0;
-    g_floor_events = (u_char *)(PACK_BASE + g_pack_event_tab[DNG_FLOOR]);
-    g_scene->win.kind = 0;
+    g_floor_events = (u_char *)(PACK_BASE + event_offset);
+    message_scene->win.kind = 0;
     D_800993B8 = 0;
     g_bgm_off = 0;
     D_8009FE3C = 0;
     D_8009FAD0 = 0;
+    scene = g_scene;
     g_playtime_frame = (g_playtime_frame + 2) / 3 * 3;
     g_clock_frame = ((u_char)g_clock_frame + 2) / 3 * 3;
     D_800A059C = 0;
     g_field_frames = 0;
-    g_scene->from_y = 0;
-    g_scene->from_x = 0;
+    scene->from_y = 0;
+    scene->from_x = 0;
     g_dng->angle = (g_dng->facing ^ 1) << 10;
     g_field_hold = 0;
     D_800A02E0 = 0;
     g_scene->sin = rsin(g_dng->angle);
     g_scene->cos = rcos(g_dng->angle);
 }
-#else
-INCLUDE_ASM("dng/nonmatchings/field/fieldinit", FieldSetFloor);
-#endif
 
 /* Coming back from the 2D map or an ADV scene clears the state's 0x15B0
    byte; coming back from a battle leaves it. The battle's empty case is what
