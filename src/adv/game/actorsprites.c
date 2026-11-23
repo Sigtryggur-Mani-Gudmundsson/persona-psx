@@ -13,7 +13,6 @@
  * after the leader's are placed without either extra.
  */
 #include <decomp/types.h>
-#include <decomp/include_asm.h>
 #include <persona/adv/actor.h>
 #include <persona/common/slot.h>
 
@@ -48,13 +47,10 @@ extern u_char g_dir_flip[];
      - g_adv_actors[n].lift * STEP_H)
 #define DEPTH(n) (g_adv_actors[n].z + g_adv_actors[n].depth)
 
-/* 87.90%: the original re-masks the counter at every use rather than keeping
-   a masked copy across the calls, which is what lets its shadow cases share
-   their tails; the y terms also load in a different order. */
-#ifdef NON_MATCHING
 void ActorsPlaceSprites(void)
 {
     u_char i;
+    u_int index;
 
     for (i = 0; i < ACTOR_COUNT; i++) {
         if (g_adv_actors[i].id != ACTOR_NONE) {
@@ -66,40 +62,39 @@ void ActorsPlaceSprites(void)
             }
 
             if (i < ROOM_ACTORS) {
-                SlotSetPos(i + OUTLINE_SLOT, DEPTH(i) - 1, SCREEN_X(i),
-                           SCREEN_Y(i));
+                index = i;
+                SlotSetPos(i + OUTLINE_SLOT, DEPTH(index) - 1, SCREEN_X(index),
+                           SCREEN_Y(index));
                 g_slot_cur = &g_slots[i + SHADOW_SLOT];
                 g_slot_cur->tpage_add = i;
-                switch (g_adv_actors[i].shadow) {
+                switch (g_adv_actors[index].shadow) {
                 case SHADOW_NONE:
                     SlotClear(i + SHADOW_SLOT);
                     break;
                 case SHADOW_FLAT:
                     SlotSetPos(i + SHADOW_SLOT, DEPTH(i), SCREEN_X(i),
                                SCREEN_Y(i));
-                    g_slot_cur->scale_y = SHADOW_SCALE;
-                    g_slot_cur->attr |= SLOT_ATTR_2000;
-                    SlotSetSemiTrans(i + SHADOW_SLOT, 1);
-                    break;
+                    goto flatten_shadow;
                 case SHADOW_FLAT_LOW:
                     SlotSetBrightness(i + SHADOW_SLOT,
                                       g_adv_actors[i].bright * 3 / 2);
                     SlotSetPos(i + SHADOW_SLOT, DEPTH(i), SCREEN_X(i),
                                SCREEN_Y(i) + SHADOW_DROP);
-                    g_slot_cur->scale_y = SHADOW_SCALE;
-                    g_slot_cur->attr |= SLOT_ATTR_2000;
-                    SlotSetSemiTrans(i + SHADOW_SLOT, 1);
-                    break;
+                    goto flatten_shadow;
                 case SHADOW_COPY:
                     SlotSetPos(i + SHADOW_SLOT, DEPTH(i), SCREEN_X(i),
                                SCREEN_Y(i));
-                    SlotSetSemiTrans(i + SHADOW_SLOT, 1);
-                    break;
+                    goto blend_shadow;
                 case SHADOW_COPY_LIT:
                     SlotSetBrightness(i + SHADOW_SLOT,
                                       g_adv_actors[i].bright * 3 / 2);
                     SlotSetPos(i + SHADOW_SLOT, DEPTH(i), SCREEN_X(i),
                                SCREEN_Y(i));
+                    goto blend_shadow;
+                flatten_shadow:
+                    g_slot_cur->scale_y = SHADOW_SCALE;
+                    g_slot_cur->attr |= SLOT_ATTR_2000;
+                blend_shadow:
                     SlotSetSemiTrans(i + SHADOW_SLOT, 1);
                     break;
                 }
@@ -123,7 +118,11 @@ void ActorsPlaceSprites(void)
                 SlotSetSemiTrans(i, 0);
             }
         } else {
-            SlotClear(i == LEADER ? LEADER_SLOT : i);
+            if (i == LEADER) {
+                SlotClear(LEADER_SLOT);
+            } else {
+                SlotClear(i);
+            }
             if (i < ROOM_ACTORS) {
                 SlotClear(i + SHADOW_SLOT);
             }
@@ -136,6 +135,3 @@ void ActorsPlaceSprites(void)
     }
     SlotSetPos(MARK_SLOT, g_adv_actors[0].z, SCREEN_X(0), SCREEN_Y(0) + 4);
 }
-#else
-INCLUDE_ASM("adv/nonmatchings/game/actorsprites", ActorsPlaceSprites);
-#endif

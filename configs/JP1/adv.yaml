@@ -78,7 +78,8 @@ segments:
       # The opening animation and result switches, including their padding.
       - [0x2C8, .rodata, game/chestresult]
       - [0x328, .rodata, game/actorstand]
-      - [0x330, rodata, adv_rodata3a]
+      - [0x330, .rodata, game/actorsprites]
+      - [0x344, pad, adv_pad_344]
       - [0x348, .rodata, gfx/imagecells]
       - [0x35C, .rodata, game/roomsetup]
       - [0x364, pad, adv_pad_364]

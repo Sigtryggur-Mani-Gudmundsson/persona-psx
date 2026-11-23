@@ -6,7 +6,6 @@
  * callback loads the previous one's slices into the display area.
  */
 #include <decomp/types.h>
-#include <decomp/include_asm.h>
 #include <libcd.h>
 #include <libetc.h>
 #include <libgte.h>
@@ -103,13 +102,16 @@ int main(void)
 }
 
 /* Plays g_movie_no to its end, then sets where the game resumes. */
-#ifdef NON_MATCHING
 int MoviePlay(void)
 {
     CdlFILE          file;
     RECT             rect;
     char             name[] = "\\STR0\\MV00.STR;1";
-    u_char           unused[0x74];
+    /* These unused SDK environments account for the original stack frame. */
+    DISPENV          disp;
+    DRAWENV          draw;
+    u_int            movie;
+    u_long           row_offset;
 
     SetDispMask(0);
     CdControlB(CdlPause, 0, 0);
@@ -159,44 +161,47 @@ int MoviePlay(void)
             VSync(0);
             ResetGraph(1);
             GsSwapDispBuff();
-        } while (g_movie_frame < g_movie_frames[g_movie_no] - 3 && g_movie_end != 1);
-        if (g_movie_again) {
+        } while (g_movie_frame < g_movie_frames[(u_short)g_movie_no] - 3 && g_movie_end != 1);
+        /* JP1 tests the same replay flag again before picking the next map. */
+        switch (g_movie_again != 0) {
+        case 1:
             continue;
         }
         if (g_movie_again) {
             return 1;
         }
-    if (g_movie_no >= 0xC) {
-        g_movie_next_state = g_movie_after[g_movie_no - 0xC].state;
-        MAP_ID   = g_movie_after[g_movie_no - 0xC].map;
-        MAP_POS_X = g_movie_after[g_movie_no - 0xC].x;
-        MAP_POS_Y = g_movie_after[g_movie_no - 0xC].y;
-        MAP_UNK4  = g_movie_after[g_movie_no - 0xC].map_unk4;
-        MAP_ROOM     = g_movie_after[g_movie_no - 0xC].room;
-        if (g_movie_no == 0xC) {
-            if (EVENT_FLAG(0x53)) {
-                MAP_ID = 0xA0;
-                MAP_ROOM   = 1;
-            }
-        } else if (g_movie_no == 0x25) {
-            if (EVENT_FLAG(0x169)) {
-                MAP_ID = 0xD8;
-                MAP_ROOM   = 0;
+
+        movie = g_movie_no;
+        if (movie >= 0xC) {
+            row_offset = (movie - 0xC) * sizeof(MovieAfter);
+            g_movie_next_state = g_movie_after[movie - 0xC].state;
+            MAP_ID = *(const u_short *)((const u_char *)&g_movie_after + row_offset
+                                         + sizeof(g_movie_after[0].state));
+            MAP_POS_X = g_movie_after[movie - 0xC].x;
+            MAP_POS_Y = g_movie_after[movie - 0xC].y;
+            MAP_UNK4 = g_movie_after[movie - 0xC].map_unk4;
+            MAP_ROOM = g_movie_after[movie - 0xC].room;
+            if (movie == 0xC) {
+                if (EVENT_FLAG(0x53)) {
+                    MAP_ID = 0xA0;
+                    MAP_ROOM = 1;
+                }
+            } else if (movie == 0x25) {
+                if (EVENT_FLAG(0x169)) {
+                    MAP_ID = 0xD8;
+                    MAP_ROOM = 0;
+                }
+            } else {
+                return 0;
             }
         } else {
-            return 0;
+            g_movie_next_state = 3;
+            MAP_ID = 0x10A;
+            MAP_ROOM = 2;
         }
-    } else {
-        g_movie_next_state = 3;
-        MAP_ID   = 0x10A;
-        MAP_ROOM = 2;
-    }
-    return 0;
+        return 0;
     }
 }
-#else
-INCLUDE_ASM("movie/nonmatchings/movie", MoviePlay);
-#endif
 
 /* The MDEC's end-of-slice callback: loads the slice just decoded, then
    either starts the next one or, at the end of the area, flips the areas
